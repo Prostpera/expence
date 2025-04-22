@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 10, 10, 10;
+  --primary-color: 139, 92, 246; /* Purple accent color */
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center border-2 border-transparent px-4 py-2 text-sm font-medium transition-colors focus:outline-none;
+  }
+
+  .btn-primary {
+    @apply bg-purple-600 text-white hover:bg-purple-700;
+  }
+
+  .btn-secondary {
+    @apply border-purple-600 bg-transparent text-purple-400 hover:bg-purple-900 hover:bg-opacity-20;
+  }
+
+  .btn-danger {
+    @apply border-red-500 bg-transparent text-red-400 hover:bg-red-900 hover:bg-opacity-20;
+  }
+
+  .nav-link {
+    @apply px-3 py-2 text-sm font-medium transition-colors;
+  }
+
+  .nav-link-active {
+    @apply bg-gray-800 text-white;
+  }
+
+  .nav-link-inactive {
+    @apply text-gray-300 hover:bg-gray-800 hover:text-white;
+  }
+
+  .card {
+    @apply bg-gray-900 p-6 shadow-lg rounded-md;
+  }
+}
