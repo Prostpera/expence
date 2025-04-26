@@ -22,9 +22,12 @@ export default function Quests() {
             </h1>
           </div>
 
-          <button className="border border-purple-500 bg-gray-800 px-4 py-2 text-purple-400 hover:bg-purple-700 hover:bg-opacity-40 w-full sm:w-auto">
-            Create New Quest
-          </button>
+          <Link
+            href="/dashboard/quests/create"
+            className="relative bg-cyan-900 bg-opacity-30 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-cyan-500 hover:bg-opacity-75 w-full sm:w-auto px-6"
+          >
+            <span className="text-cyan-400 font-medium text-sm">Create New Quest</span>
+          </Link>
         </div>
 
         {/* Quest Cards */}
