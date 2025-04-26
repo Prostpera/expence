@@ -14,8 +14,7 @@ export default function Quests() {
       <Header />
 
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
-
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex items-center">
             <div className="h-6 w-1 bg-cyan-500 mr-3"></div>
             <h1 className="text-xl md:text-2xl font-bold text-white">
@@ -23,13 +22,13 @@ export default function Quests() {
             </h1>
           </div>
 
-          <button className="border border-purple-500 bg-gray-800 px-4 py-2 text-purple-400 hover:bg-purple-700 hover:bg-opacity-40">
+          <button className="border border-purple-500 bg-gray-800 px-4 py-2 text-purple-400 hover:bg-purple-700 hover:bg-opacity-40 w-full sm:w-auto">
             Create New Quest
           </button>
         </div>
 
+        {/* Quest Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Quest Card Examples */}
           <QuestCard
             title="Save $100 on groceries"
             description="Reduce your grocery spending by $100 this month."
@@ -55,7 +54,6 @@ export default function Quests() {
             daysLeft={7}
           />
         </div>
-
       </main>
     </div>
   );
