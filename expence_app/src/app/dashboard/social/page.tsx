@@ -1,9 +1,9 @@
-import Navbar from '@/components/Navbar';
+import Header from '@/components/Header';
 
 export default function Social() {
   return (
     <div className="min-h-screen bg-gray-950">
-      <Navbar />
+      <Header />
       
       <main className="mx-auto max-w-7xl p-6">
         <div className="mb-6 flex items-center justify-between">
