@@ -1,5 +1,6 @@
 // src/app/dashboard/page.tsx
 import Link from 'next/link';
+import Header from '@/components/Header';
 import { 
   Compass, 
   Users, 
@@ -14,7 +15,6 @@ import {
   AlertTriangle,
   PiggyBank
 } from 'lucide-react';
-import Header from '@/components/Header';
 
 export default function Dashboard() {
   return (
@@ -23,7 +23,9 @@ export default function Dashboard() {
       <div className="absolute inset-0 bg-[radial-gradient(#1e1e30_1px,transparent_1px)] bg-[size:24px_24px] opacity-30 z-0"></div>
       <div className="absolute inset-0 bg-[linear-gradient(transparent_0px,transparent_1px,#3c3c5c_1px,transparent_2px,transparent_4px)] bg-[size:100%_4px] opacity-5 z-0"></div>
       
-      <Header />
+      {/* Header Bar */}
+      
+      <Header/>
       
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
         <div className="flex items-center mb-6">

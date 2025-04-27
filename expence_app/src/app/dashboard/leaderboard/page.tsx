@@ -1,9 +1,9 @@
-import Navbar from '@/components/Navbar';
+import Header from '@/components/Header';
 
 export default function Leaderboard() {
   return (
     <div className="min-h-screen bg-gray-950">
-      <Navbar />
+      <Header />
       
       <main className="mx-auto max-w-7xl p-6">
         <h1 className="mb-6 text-2xl font-bold text-white">Leaderboard</h1>
