@@ -1,11 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import QuestCard from '@/components/QuestCard';
 import Header from '@/components/Header';
+import QuestModal from '@/components/QuestModal';
+import type { QuestData } from '@/components/QuestModal';
+import Image from 'next/image';
 
 export default function Quests() {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden flex flex-col">
       <div className="absolute inset-0 bg-[radial-gradient(#1e1e30_1px,transparent_1px)] bg-[size:24px_24px] opacity-30 z-0"></div>
@@ -13,8 +19,19 @@ export default function Quests() {
 
       <Header />
 
+      {/* Modal */}
+      {showModal && (
+        <QuestModal
+          onClose={() => setShowModal(false)}
+          onCreate={(questData: QuestData) => {
+            console.log('New Quest:', questData);
+            setShowModal(false);
+          }}
+        />
+      )}
+
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 border-b border-purple-800 pb-4">
           <div className="flex items-center">
             <div className="h-6 w-1 bg-cyan-500 mr-3"></div>
             <h1 className="text-xl md:text-2xl font-bold text-white">
@@ -22,12 +39,12 @@ export default function Quests() {
             </h1>
           </div>
 
-          <Link
-            href="/dashboard/quests/create"
+          <button
+            onClick={() => setShowModal(true)}
             className="relative bg-cyan-900 bg-opacity-30 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-cyan-500 hover:bg-opacity-75 w-full sm:w-auto px-6"
           >
             <span className="text-cyan-400 font-medium text-sm">Create New Quest</span>
-          </Link>
+          </button>
         </div>
 
         {/* Quest Cards */}
@@ -56,6 +73,22 @@ export default function Quests() {
             goal={200}
             daysLeft={7}
           />
+        </div>
+
+        {/* Floating Briefcase Icon */}
+        <div className="fixed bottom-8 right-8 z-50">
+          <div className="relative">
+            <Image
+              src="/briefcase.png"
+              alt="Briefcase"
+              width={80}
+              height={80}
+              className="absolute bottom-4 right-4 z-20 hover:scale-105 transition-transform"
+            />
+            <div className="absolute -left-4 -top-2 bg-cyan-400 text-black rounded-full px-2 py-1 font-bold text-xs shadow-lg">
+              ?
+            </div>
+          </div>
         </div>
       </main>
     </div>
