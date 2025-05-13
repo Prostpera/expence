@@ -1,6 +1,9 @@
-// src/app/dashboard/page.tsx
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import ChatbotModal from '@/components/ChatbotModal';
 import { 
   Compass, 
   Users, 
@@ -15,8 +18,15 @@ import {
   AlertTriangle,
   PiggyBank
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Dashboard() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  
+  const handleBriefcaseClick = () => {
+    setIsChatbotOpen(true);
+  };
+  
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden flex flex-col">
       {/* Cyber Grid Background */}
@@ -24,7 +34,6 @@ export default function Dashboard() {
       <div className="absolute inset-0 bg-[linear-gradient(transparent_0px,transparent_1px,#3c3c5c_1px,transparent_2px,transparent_4px)] bg-[size:100%_4px] opacity-5 z-0"></div>
       
       {/* Header Bar */}
-      
       <Header/>
       
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
@@ -187,6 +196,28 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Chatbot Modal */}
+        <ChatbotModal isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+
+        {/* Floating Briefcase Icon */}
+        {!isChatbotOpen && (
+          <div 
+            className="fixed bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 pointer-events-auto"
+            onClick={handleBriefcaseClick}
+          >
+            <div className="relative">
+              <Image
+                src="/briefcase.png"
+                alt="Briefcase"
+                width={240}
+                height={160}
+                priority={true}
+                className="w-[180px] h-[120px] sm:w-[210px] sm:h-[140px] md:w-[240px] md:h-[160px] hover:scale-105 transition-transform cursor-pointer"
+              />
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
