@@ -1,6 +1,5 @@
-# EXPence 💰✨
-
-![just_breifcase.png](public/assets/logo.png)
+# EXPence 💰✨ 
+<img src="expence_app/public/just_briefcase.png" alt="briefcase" width="100"/>
 
 EXPence is an innovative financial literacy web application targeting Generation Z (born 1997-2012) that combines gamification, AI technology, and personalized learning. It addresses the critical issue of low financial literacy among young adults by transforming financial education into an engaging RPG-style experience.
 
