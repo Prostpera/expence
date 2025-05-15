@@ -73,6 +73,30 @@ export default function Quests() {
             goal={200}
             daysLeft={7}
           />
+          <QuestCard
+            title="Cancel a subscription"
+            description="Save $15/month by canceling an unused service."
+            status="New"
+            progress={0}
+            goal={15}
+            daysLeft={5}
+          />
+          <QuestCard
+            title="Track expenses daily"
+            description="Log all spending for the next 7 days."
+            status="In Progress"
+            progress={4}
+            goal={7}
+            daysLeft={3}
+          />
+          <QuestCard
+            title="Sell unused items"
+            description="List at least 3 unused items for sale online."
+            status="In Progress"
+            progress={2}
+            goal={3}
+            daysLeft={4}
+          />
         </div>
 
         {/* Floating Briefcase Icon */}
