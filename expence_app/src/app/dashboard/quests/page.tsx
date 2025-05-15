@@ -9,14 +9,80 @@ import QuestModal from '@/components/QuestModal';
 import type { QuestData } from '@/components/QuestModal';
 import Image from 'next/image';
 import ChatbotModal from '@/components/ChatbotModal';
+import QuestDetailModal from '@/components/QuestDetailModal';
 
 export default function Quests() {
   const [showModal, setShowModal] = useState(false);
-
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-  
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedQuest, setSelectedQuest] = useState<QuestData | null>(null);
+
+  const [quests, setQuests] = useState<QuestData[]>([
+    {
+      title: 'Save $100 on groceries',
+      description: 'Reduce your grocery spending by $100 this month.',
+      status: 'In Progress',
+      progress: 65,
+      goal: 100,
+      daysLeft: 3,
+    },
+    {
+      title: 'No eating out week',
+      description: 'Avoid restaurants and takeout for a whole week.',
+      status: 'Completed',
+      progress: 100,
+      goal: 100,
+      daysLeft: 0,
+    },
+    {
+      title: 'Start an emergency fund',
+      description: 'Save $200 towards your emergency fund goal.',
+      status: 'New',
+      progress: 0,
+      goal: 200,
+      daysLeft: 7,
+    },
+    {
+      title: 'Cancel a subscription',
+      description: 'Save $15/month by canceling an unused service.',
+      status: 'New',
+      progress: 0,
+      goal: 15,
+      daysLeft: 5,
+    },
+    {
+      title: 'Track expenses daily',
+      description: 'Log all spending for the next 7 days.',
+      status: 'In Progress',
+      progress: 4,
+      goal: 7,
+      daysLeft: 3,
+    }
+  ]);
+
   const handleBriefcaseClick = () => {
     setIsChatbotOpen(true);
+  };
+
+  const handleNewQuestFromChatbot = () => {
+    const newQuest: QuestData = {
+      title: 'Stick to $200 Weekly Budget',
+      description: 'Spend no more than $200 this week.',
+      status: 'New',
+      progress: 0,
+      goal: 200,
+      daysLeft: 7,
+    };
+    setQuests(prev => [...prev, newQuest]);
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 3000);
+  };
+
+  const handleQuestUpdate = (updatedQuest: QuestData) => {
+    setQuests(prev =>
+      prev.map(q => q.title === updatedQuest.title ? updatedQuest : q)
+    );
+    setSelectedQuest(null);
   };
 
   return (
@@ -26,7 +92,6 @@ export default function Quests() {
 
       <Header />
 
-      {/* Modal */}
       {showModal && (
         <QuestModal
           onClose={() => setShowModal(false)}
@@ -34,6 +99,14 @@ export default function Quests() {
             console.log('New Quest:', questData);
             setShowModal(false);
           }}
+        />
+      )}
+
+      {selectedQuest && (
+        <QuestDetailModal 
+          quest={selectedQuest} 
+          onClose={() => setSelectedQuest(null)} 
+          onUpdate={handleQuestUpdate} 
         />
       )}
 
@@ -56,58 +129,24 @@ export default function Quests() {
 
         {/* Quest Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <QuestCard
-            title="Save $100 on groceries"
-            description="Reduce your grocery spending by $100 this month."
-            status="In Progress"
-            progress={65}
-            goal={100}
-            daysLeft={3}
-          />
-          <QuestCard
-            title="No eating out week"
-            description="Avoid restaurants and takeout for a whole week."
-            status="Completed"
-            progress={100}
-            goal={100}
-            daysLeft={0}
-          />
-          <QuestCard
-            title="Start an emergency fund"
-            description="Save $200 towards your emergency fund goal."
-            status="New"
-            progress={0}
-            goal={200}
-            daysLeft={7}
-          />
-          <QuestCard
-            title="Cancel a subscription"
-            description="Save $15/month by canceling an unused service."
-            status="New"
-            progress={0}
-            goal={15}
-            daysLeft={5}
-          />
-          <QuestCard
-            title="Track expenses daily"
-            description="Log all spending for the next 7 days."
-            status="In Progress"
-            progress={4}
-            goal={7}
-            daysLeft={3}
-          />
-          <QuestCard
-            title="Sell unused items"
-            description="List at least 3 unused items for sale online."
-            status="In Progress"
-            progress={2}
-            goal={3}
-            daysLeft={4}
-          />
+          {quests.map((quest, idx) => (
+            <QuestCard 
+              key={idx} 
+              {...quest} 
+              onViewDetails={() => setSelectedQuest(quest)} 
+            />
+          ))}
         </div>
 
         {/* Chatbot Modal */}
-        <ChatbotModal isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+        <ChatbotModal isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} onTriggerNewQuest={handleNewQuestFromChatbot} />
+
+        {/* Popup */}
+        {showPopup && (
+          <div className="fixed top-6 right-6 bg-cyan-500 text-black px-4 py-2 rounded-md shadow-lg z-50">
+            New Quest Added!
+          </div>
+        )}
 
         {/* Floating Briefcase Icon */}
         {!isChatbotOpen && (

@@ -3,13 +3,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface QuestCardProps {
+export interface QuestCardProps {
   title: string;
   description: string;
   status: string;
   progress: number;
   goal: number;
   daysLeft: number;
+  onViewDetails?: () => void;
 }
 
 const QuestCard: React.FC<QuestCardProps> = ({
@@ -19,6 +20,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
   progress,
   goal,
   daysLeft,
+  onViewDetails,
 }) => {
   return (
     <StyledWrapper>
@@ -36,7 +38,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
                   </div>
                   <div style={{ color: '#ccc', fontSize: '0.75em' }}>{progress} / {goal}</div>
                 </div>
-                <button className="submit">View Details</button>
+                <button className="submit" onClick={onViewDetails}>View Details</button>
               </div>
             </div>
           </div>
