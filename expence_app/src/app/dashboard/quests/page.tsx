@@ -8,9 +8,16 @@ import Header from '@/components/Header';
 import QuestModal from '@/components/QuestModal';
 import type { QuestData } from '@/components/QuestModal';
 import Image from 'next/image';
+import ChatbotModal from '@/components/ChatbotModal';
 
 export default function Quests() {
   const [showModal, setShowModal] = useState(false);
+
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  
+  const handleBriefcaseClick = () => {
+    setIsChatbotOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden flex flex-col">
@@ -99,21 +106,27 @@ export default function Quests() {
           />
         </div>
 
+        {/* Chatbot Modal */}
+        <ChatbotModal isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
+
         {/* Floating Briefcase Icon */}
-        <div className="fixed bottom-8 right-8 z-50">
-          <div className="relative">
-            <Image
-              src="/briefcase.png"
-              alt="Briefcase"
-              width={80}
-              height={80}
-              className="absolute bottom-4 right-4 z-20 hover:scale-105 transition-transform"
-            />
-            <div className="absolute -left-4 -top-2 bg-cyan-400 text-black rounded-full px-2 py-1 font-bold text-xs shadow-lg">
-              ?
+        {!isChatbotOpen && (
+          <div 
+            className="fixed bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 pointer-events-auto"
+            onClick={handleBriefcaseClick}
+          >
+            <div className="relative">
+              <Image
+                src="/briefcase.png"
+                alt="Briefcase"
+                width={240}
+                height={160}
+                priority={true}
+                className="w-[180px] h-[120px] sm:w-[210px] sm:h-[140px] md:w-[240px] md:h-[160px] hover:scale-105 transition-transform cursor-pointer"
+              />
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
