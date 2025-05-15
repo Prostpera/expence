@@ -9,6 +9,11 @@ module.exports = {
     extend: {
       // Original theme colors
       colors: {
+        neonPink: '#FF00FF',
+        neonPurple: '#9D00FF',
+        neonCyan: '#00FFFF',
+        neonGreen: '#39FF14',
+        neonYellow: '#FFFF33',
         neon: '#39FF14',
         neonBlue: '#00FFFF',
         cyberPink: '#FF4DA6',
