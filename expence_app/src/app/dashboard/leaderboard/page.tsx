@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-
+/*NMW updates*/
 export default function Leaderboard() {
   return (
     <div className="min-h-screen bg-gray-950">
