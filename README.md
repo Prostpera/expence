@@ -26,7 +26,7 @@ Unlike existing financial apps that focus solely on tracking or advice, EXPence 
 1. Clone the repository:
 ```bash
 git clone https://github.com/Prostpera/expence.git
-cd expence
+cd expence/expence_app
 ```
 
 2. Install dependencies:
