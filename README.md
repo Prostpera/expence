@@ -38,7 +38,6 @@ yarn install
 
 3. Run the development server:
 ```bash
-cd expence_app
 npm run dev
 # or
 yarn dev
