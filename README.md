@@ -136,7 +136,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Joann Sum
 - John-Leon Rivera
 - Nicholas Wilcoxen
-- Sean Hawi
+- Oyinkansola Olayinka
 
 ---
 
