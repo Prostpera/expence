@@ -99,85 +99,8 @@ function QuestPageContent() {
 
       <Header />
 
-      <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8 border-b border-purple-800 pb-6">
-          <div className="flex items-center">
-            <div className="h-6 w-1 bg-cyan-500 mr-3"></div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">
-              QUEST_<span className="text-cyan-400">SYSTEM</span>
-            </h1>
-            <div className="ml-4 flex items-center gap-2">
-              <span className="px-2 py-1 text-xs bg-pink-900/50 text-pink-300 rounded border border-pink-700">
-                AI POWERED
-              </span>
-              <span className="px-2 py-1 text-xs bg-green-900/50 text-green-300 rounded border border-green-700">
-                LEVEL {mockUserContext.currentLevel}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* AI Quest Generation Button */}
-            <button
-              onClick={handleGenerateAIQuest}
-              className="relative group bg-gradient-to-r from-pink-900 to-purple-900 bg-opacity-50 h-12 flex items-center justify-center px-6 text-center border border-pink-500 hover:bg-opacity-75 transition-all duration-300 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-2">
-                <Sparkles size={18} className="text-pink-400" />
-                <Brain size={18} className="text-purple-400" />
-                <span className="text-white font-medium text-sm">Generate AI Quests</span>
-              </div>
-            </button>
-
-            {/* Custom Quest Button */}
-            <button
-              onClick={handleCreateCustomQuest}
-              className="relative bg-cyan-900 bg-opacity-30 h-12 flex items-center justify-center px-6 text-center border border-cyan-500 hover:bg-opacity-75 transition-all duration-300"
-            >
-              <div className="flex items-center gap-2">
-                <Plus size={18} className="text-cyan-400" />
-                <span className="text-white font-medium text-sm">Create Custom</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* AI Features Showcase */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-900/50 p-4 border border-pink-500/30 rounded-lg">
-            <div className="flex items-center gap-3 mb-2">
-              <Brain className="text-pink-400" size={20} />
-              <h3 className="text-white font-semibold">Smart Personalization</h3>
-            </div>
-            <p className="text-gray-300 text-sm">
-              AI analyzes your goals, level, and preferences to create perfectly tailored financial challenges.
-            </p>
-          </div>
-
-          <div className="bg-gray-900/50 p-4 border border-cyan-500/30 rounded-lg">
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="text-cyan-400" size={20} />
-              <h3 className="text-white font-semibold">Adaptive Difficulty</h3>
-            </div>
-            <p className="text-gray-300 text-sm">
-              Quest difficulty scales with your progress, ensuring optimal challenge and learning.
-            </p>
-          </div>
-
-          <div className="bg-gray-900/50 p-4 border border-yellow-500/30 rounded-lg">
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="text-yellow-400" size={20} />
-              <h3 className="text-white font-semibold">Dynamic Content</h3>
-            </div>
-            <p className="text-gray-300 text-sm">
-              Fresh quests generated daily based on current trends and your evolving financial journey.
-            </p>
-          </div>
-        </div>
-
-        {/* Quest Dashboard */}
+      <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">        
+        {/* Quest Header and Dashboard */}
         <QuestDashboard
           userContext={mockUserContext}
           onCreateCustomQuest={handleCreateCustomQuest}

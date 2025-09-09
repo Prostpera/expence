@@ -104,6 +104,246 @@ export class AIQuestGenerator {
     }
   }
 
+  async generateCustomQuest(
+    userContext: UserContext,
+    userPrompt: string,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
+  ): Promise<Quest> {
+    try {
+      let aiQuestData: AIGeneratedQuestData;
+
+      if (this.isAIEnabled && this.llm) {
+        console.log('🎯 Generating custom quest with Claude for:', userPrompt);
+        aiQuestData = await this.generateCustomWithLangChain(userContext, userPrompt, preferredCategory, preferredDifficulty);
+      } else {
+        console.log('🔄 Using template-based custom quest generation...');
+        aiQuestData = await this.generateCustomFromTemplate(userContext, userPrompt, preferredCategory, preferredDifficulty);
+      }
+      
+      return this.createQuestFromAIData(aiQuestData, userContext);
+    } catch (error) {
+      console.warn('Custom quest generation failed, using fallback:', error);
+      return this.generateCustomFallbackQuest(userContext, userPrompt, preferredCategory, preferredDifficulty);
+    }
+  }
+
+  private async generateCustomWithLangChain(
+    userContext: UserContext,
+    userPrompt: string,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
+  ): Promise<AIGeneratedQuestData> {
+    if (!this.llm) {
+      throw new Error('LangChain not initialized');
+    }
+
+    const systemPrompt = this.buildCustomSystemPrompt();
+    const customUserPrompt = this.buildCustomUserPrompt(userContext, userPrompt, preferredCategory, preferredDifficulty);
+
+    try {
+      const messages = [
+        new SystemMessage(systemPrompt),
+        new HumanMessage(customUserPrompt)
+      ];
+
+      console.log('📤 Sending custom quest request to Claude...');
+      const response = await this.llm.invoke(messages);
+      console.log('📥 Received custom quest response from Claude');
+
+      return this.parseAIResponse(response.content as string);
+    } catch (error) {
+      console.error('❌ Custom LangChain generation failed:', error);
+      throw error;
+    }
+  }
+
+  private buildCustomSystemPrompt(): string {
+    return `You are an expert financial literacy quest generator specializing in creating personalized financial challenges based on user goals and requests. You transform user financial aspirations into actionable, achievable quests.
+
+CUSTOM QUEST PRINCIPLES:
+- Convert user goals into structured, step-by-step financial quests
+- Break down large financial goals into manageable milestones
+- Provide realistic timelines based on typical income and expenses
+- Include specific, measurable actions the user can take
+- Make the quest engaging with gaming terminology
+- Ensure financial advice is safe and conservative
+
+GOAL ANALYSIS:
+- Parse the user's financial goal (savings target, purchase, debt payoff, etc.)
+- Calculate reasonable timeframes based on goal amount and user context
+- Suggest practical saving/earning strategies appropriate for their situation
+- Include milestone tracking to maintain motivation
+
+QUEST STRUCTURE:
+- Title should be engaging and specific to their goal
+- Description should include the target amount and practical steps
+- Goal should represent the target amount or key metric
+- Timeline should be realistic but motivating
+- Rewards should scale with difficulty and commitment required
+
+SAFETY GUIDELINES:
+- Never suggest unsafe financial practices
+- Keep recommendations appropriate for user's age and income level
+- Suggest emergency fund consideration for larger purchases
+- Include reminders about budgeting and responsible spending
+
+You must respond with ONLY a valid JSON object, no additional text.`;
+  }
+
+  private buildCustomUserPrompt(
+    userContext: UserContext,
+    userPrompt: string,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
+  ): string {
+    const level = userContext.currentLevel;
+    const riskTolerance = userContext.preferences.riskTolerance;
+    const age = userContext.demographics.age;
+    const income = userContext.demographics.income;
+
+    return `Create a personalized financial quest based on this user's specific request:
+
+USER REQUEST: "${userPrompt}"
+
+USER PROFILE:
+- Age: ${age}
+- Current Level: ${level}
+- Risk Tolerance: ${riskTolerance}
+- Income: ${income ? `${income}` : 'Not specified'}
+${preferredCategory ? `- Preferred Category: ${preferredCategory}` : ''}
+${preferredDifficulty ? `- Preferred Difficulty: ${preferredDifficulty}` : ''}
+
+QUEST CREATION GUIDELINES:
+1. Analyze their request and extract the financial goal
+2. Calculate a realistic timeline based on the goal amount and their profile
+3. Create actionable steps they can take to achieve this goal
+4. Make it engaging with gaming terminology
+5. Include specific milestone markers
+
+Examples of good quest creation:
+- "I want to save for a $135 ball game" → Create a savings quest with weekly targets
+- "I need to pay off my credit card" → Create a debt payoff strategy quest
+- "I want to start investing" → Create an investment learning and action quest
+
+Return ONLY this JSON format:
+
+{
+  "title": "Engaging quest title related to their goal (max 60 characters)",
+  "description": "Specific description with their goal amount and actionable steps (max 200 characters)",
+  "category": "main_story|important|side_jobs",
+  "difficulty": "easy|medium|hard",
+  "tags": ["relevant", "tags", "for_goal"],
+  "estimatedDays": realistic_number_of_days_needed,
+  "goal": target_amount_or_measurable_metric,
+  "expReward": number_between_50_and_500_based_on_difficulty,
+  "coinReward": number_between_25_and_250_based_on_difficulty
+}
+
+Make it specific to their request and achievable for their profile!`;
+  }
+
+  // Generate custom quest from template (fallback)
+  private async generateCustomFromTemplate(
+    userContext: UserContext,
+    userPrompt: string,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
+  ): Promise<AIGeneratedQuestData> {
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const promptLower = userPrompt.toLowerCase();
+    const amountMatch = userPrompt.match(/\$?(\d+(?:,\d{3})*(?:\.\d{2})?)/);
+    const targetAmount = amountMatch ? parseFloat(amountMatch[1].replace(',', '')) : 100;
+
+    let questTemplate: Partial<AIGeneratedQuestData> = {};
+
+    // Detect intent and create appropriate quest
+    if (promptLower.includes('save') || promptLower.includes('saving')) {
+      questTemplate = {
+        title: `Save for ${userPrompt.split(' ').slice(-2).join(' ')}`,
+        description: `Save ${targetAmount} by setting aside money weekly and tracking your progress.`,
+        category: QuestCategory.IMPORTANT,
+        difficulty: targetAmount > 500 ? QuestDifficulty.HARD : targetAmount > 100 ? QuestDifficulty.MEDIUM : QuestDifficulty.EASY,
+        tags: ['savings', 'goal', 'planning'],
+        estimatedDays: Math.max(7, Math.min(90, Math.floor(targetAmount / 10))),
+        goal: targetAmount,
+        expReward: Math.floor(targetAmount / 2) + 50,
+        coinReward: Math.floor(targetAmount / 4) + 25
+      };
+    } else if (promptLower.includes('pay off') || promptLower.includes('debt')) {
+      questTemplate = {
+        title: `Debt Elimination Quest`,
+        description: `Pay off ${targetAmount} in debt using strategic payments and budget optimization.`,
+        category: QuestCategory.MAIN_STORY,
+        difficulty: QuestDifficulty.HARD,
+        tags: ['debt', 'payoff', 'budgeting'],
+        estimatedDays: Math.max(14, Math.min(180, Math.floor(targetAmount / 20))),
+        goal: targetAmount,
+        expReward: Math.floor(targetAmount / 1.5) + 100,
+        coinReward: Math.floor(targetAmount / 3) + 50
+      };
+    } else if (promptLower.includes('invest') || promptLower.includes('investment')) {
+      questTemplate = {
+        title: `Investment Journey Quest`,
+        description: `Start investing with ${targetAmount} after researching and choosing appropriate investments.`,
+        category: QuestCategory.IMPORTANT,
+        difficulty: QuestDifficulty.MEDIUM,
+        tags: ['investing', 'research', 'growth'],
+        estimatedDays: 21,
+        goal: targetAmount,
+        expReward: 200,
+        coinReward: 100
+      };
+    } else {
+      // Generic financial goal
+      questTemplate = {
+        title: `Custom Financial Goal`,
+        description: `Achieve your goal of ${userPrompt} through planned saving and smart financial decisions.`,
+        category: QuestCategory.SIDE_JOBS,
+        difficulty: QuestDifficulty.MEDIUM,
+        tags: ['custom', 'goal', 'savings'],
+        estimatedDays: 30,
+        goal: targetAmount,
+        expReward: 150,
+        coinReward: 75
+      };
+    }
+
+    if (preferredCategory) questTemplate.category = preferredCategory;
+    if (preferredDifficulty) questTemplate.difficulty = preferredDifficulty;
+
+    // Adjust based on user level
+    const levelMultiplier = 1 + (userContext.currentLevel - 1) * 0.1;
+    questTemplate.expReward = Math.floor((questTemplate.expReward || 100) * levelMultiplier);
+    questTemplate.coinReward = Math.floor((questTemplate.coinReward || 50) * levelMultiplier);
+
+    return questTemplate as AIGeneratedQuestData;
+  }
+
+  private generateCustomFallbackQuest(
+    userContext: UserContext,
+    userPrompt: string,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
+  ): Quest {
+    const amountMatch = userPrompt.match(/\$?(\d+(?:,\d{3})*(?:\.\d{2})?)/);
+    const targetAmount = amountMatch ? parseFloat(amountMatch[1].replace(',', '')) : 100;
+
+    const fallbackData: AIGeneratedQuestData = {
+      title: 'Custom Savings Challenge',
+      description: `Work towards your goal: ${userPrompt}`,
+      category: preferredCategory || QuestCategory.IMPORTANT,
+      difficulty: preferredDifficulty || QuestDifficulty.MEDIUM,
+      tags: ['custom', 'savings', 'goal'],
+      estimatedDays: 30,
+      goal: targetAmount,
+      expReward: 150,
+      coinReward: 75
+    };
+
+    return this.createQuestFromAIData(fallbackData, userContext);
+  }
   async generatePersonalizedQuest(
     userContext: UserContext,
     preferredCategory?: QuestCategory,
