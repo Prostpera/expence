@@ -40,12 +40,16 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
   const [selectedDifficulty, setSelectedDifficulty] = useState<QuestDifficulty | ''>('');
   const [generationStep, setGenerationStep] = useState<'setup' | 'generating' | 'review'>('setup');
   const [validationIssues, setValidationIssues] = useState<{ [questId: string]: string[] }>({});
+  const [generationType, setGenerationType] = useState<'auto' | 'custom'>('auto');
+  const [customPrompt, setCustomPrompt] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setGenerationStep('setup');
       setGeneratedQuests([]);
       setValidationIssues({});
+      setGenerationType('auto');
+      setCustomPrompt('');
     }
   }, [isOpen]);
 
@@ -56,7 +60,21 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
     setValidationIssues({});
 
     try {
-      const quests = await aiQuestGenerator.generateQuestBatch(userContext, 3);
+      let quests: Quest[] = [];
+
+      if (generationType === 'custom' && customPrompt.trim()) {
+        // Generate single custom quest
+        const customQuest = await aiQuestGenerator.generateCustomQuest(
+          userContext,
+          customPrompt,
+          selectedCategory as QuestCategory || undefined,
+          selectedDifficulty as QuestDifficulty || undefined
+        );
+        quests = [customQuest];
+      } else {
+        // Generate batch of AI quests
+        quests = await aiQuestGenerator.generateQuestBatch(userContext, 3);
+      }
       
       // Validate each quest
       const issues: { [questId: string]: string[] } = {};
@@ -82,11 +100,24 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
     setLoading(true);
     
     try {
-      const newQuest = await aiQuestGenerator.generatePersonalizedQuest(
-        userContext,
-        selectedCategory as QuestCategory || undefined,
-        selectedDifficulty as QuestDifficulty || undefined
-      );
+      let newQuest: Quest;
+
+      if (generationType === 'custom' && customPrompt.trim()) {
+        // Regenerate custom quest
+        newQuest = await aiQuestGenerator.generateCustomQuest(
+          userContext,
+          customPrompt,
+          selectedCategory as QuestCategory || undefined,
+          selectedDifficulty as QuestDifficulty || undefined
+        );
+      } else {
+        // Regenerate regular quest
+        newQuest = await aiQuestGenerator.generatePersonalizedQuest(
+          userContext,
+          selectedCategory as QuestCategory || undefined,
+          selectedDifficulty as QuestDifficulty || undefined
+        );
+      }
 
       const validation = aiQuestGenerator.validateQuest(newQuest);
       if (!validation.isValid) {
@@ -114,9 +145,13 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
 
   const handleAcceptQuest = (quest: Quest) => {
     onQuestGenerated(quest);
-    // Don't close modal immediately, let user accept more quests
     console.log('Quest accepted:', quest.title);
-  };
+    
+    // Close modal after accepting quest
+    setTimeout(() => {
+        onClose();
+    }, 500);
+    };
 
   const handleAcceptAll = () => {
     const validQuests = generatedQuests.filter(quest => !validationIssues[quest.id]);
@@ -161,12 +196,83 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                 </p>
               </div>
 
+              {/* Generation Type Selection */}
+              <div className="flex justify-center">
+                <div className="bg-gray-800 p-1 rounded-lg inline-flex">
+                  <button
+                    onClick={() => setGenerationType('auto')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                      generationType === 'auto'
+                        ? 'bg-cyan-600 text-white shadow-lg'
+                        : 'text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <Sparkles className="inline mr-2" size={16} />
+                    Auto Generate
+                  </button>
+                  <button
+                    onClick={() => setGenerationType('custom')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                      generationType === 'custom'
+                        ? 'bg-pink-600 text-white shadow-lg'
+                        : 'text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    <Target className="inline mr-2" size={16} />
+                    Custom Goal
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Prompt Input */}
+              {generationType === 'custom' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <Target className="inline mr-2" size={16} />
+                      Describe your financial goal
+                    </label>
+                    <textarea
+                      value={customPrompt}
+                      onChange={(e) => setCustomPrompt(e.target.value)}
+                      placeholder="e.g., I want to save $135 for a ball game, or I need to pay off my credit card debt"
+                      className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 resize-none"
+                      rows={3}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Be specific about amounts, timeframes, or what you're saving for
+                    </p>
+                  </div>
+
+                  {/* Example prompts */}
+                  <div className="bg-gray-800/50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-400 mb-2">Example goals:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Save $135 for a ball game",
+                        "Pay off $500 credit card debt",
+                        "Build $1000 emergency fund",
+                        "Save for a $800 laptop"
+                      ].map((example, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCustomPrompt(example)}
+                          className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+                        >
+                          {example}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Preferences */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     <Target className="inline mr-2" size={16} />
-                    Quest Category (Optional)
+                    Quest Category {generationType === 'custom' ? '(Override)' : '(Optional)'}
                   </label>
                   <select
                     value={selectedCategory}
@@ -183,7 +289,7 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     <Settings className="inline mr-2" size={16} />
-                    Difficulty Level (Optional)
+                    Difficulty Level {generationType === 'custom' ? '(Override)' : '(Optional)'}
                   </label>
                   <select
                     value={selectedDifficulty}
@@ -228,12 +334,28 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
               <div className="text-center">
                 <button
                   onClick={handleGenerateQuests}
-                  disabled={loading}
-                  className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-pink-600 text-white font-bold rounded-lg hover:from-cyan-700 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading || (generationType === 'custom' && !customPrompt.trim())}
+                  className={`px-8 py-3 font-bold rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    generationType === 'custom'
+                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700'
+                      : 'bg-gradient-to-r from-cyan-600 to-pink-600 hover:from-cyan-700 hover:to-pink-700'
+                  } text-white`}
                 >
-                  <Sparkles className="inline mr-2" size={20} />
-                  Generate AI Quests
+                  {generationType === 'custom' ? (
+                    <>
+                      <Target className="inline mr-2" size={20} />
+                      Generate Custom Quest
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="inline mr-2" size={20} />
+                      Generate AI Quests
+                    </>
+                  )}
                 </button>
+                {generationType === 'custom' && !customPrompt.trim() && (
+                  <p className="text-xs text-red-400 mt-2">Please describe your financial goal</p>
+                )}
               </div>
             </div>
           )}
@@ -243,10 +365,13 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
             <div className="text-center py-12">
               <RefreshCw className="mx-auto mb-4 text-cyan-400 animate-spin" size={64} />
               <h3 className="text-2xl font-bold text-white mb-2">
-                Generating Your Quests...
+                {generationType === 'custom' ? 'Creating Your Custom Quest...' : 'Generating Your Quests...'}
               </h3>
               <p className="text-gray-300 mb-4">
-                AI is analyzing your financial goals and creating personalized challenges
+                {generationType === 'custom' 
+                  ? `AI is analyzing your goal: "${customPrompt.substring(0, 50)}${customPrompt.length > 50 ? '...' : ''}"`
+                  : 'AI is analyzing your financial goals and creating personalized challenges'
+                }
               </p>
               <div className="flex justify-center space-x-2">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
@@ -261,7 +386,7 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-white">
-                  Generated Quests
+                  {generationType === 'custom' ? 'Your Custom Quest' : 'Generated Quests'}
                 </h3>
                 <div className="flex gap-2">
                   <button
@@ -270,22 +395,26 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                   >
                     Back to Setup
                   </button>
-                  <button
-                    onClick={handleGenerateQuests}
-                    disabled={loading}
-                    className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
-                  >
-                    <RefreshCw className="inline mr-2" size={16} />
-                    Regenerate All
-                  </button>
-                  <button
-                    onClick={handleAcceptAll}
-                    disabled={Object.keys(validationIssues).length > 0}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <CheckCircle className="inline mr-2" size={16} />
-                    Accept All Valid
-                  </button>
+                  {generationType === 'auto' && (
+                    <>
+                      <button
+                        onClick={handleGenerateQuests}
+                        disabled={loading}
+                        className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
+                      >
+                        <RefreshCw className="inline mr-2" size={16} />
+                        Regenerate All
+                      </button>
+                      <button
+                        onClick={handleAcceptAll}
+                        disabled={Object.keys(validationIssues).length > 0}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <CheckCircle className="inline mr-2" size={16} />
+                        Accept All Valid
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -338,6 +467,12 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                   <span>Temperature: {aiQuestGenerator.getModelInfo().temperature}</span>
                   <span>•</span>
                   <span>Generated with safety validation</span>
+                  {generationType === 'custom' && (
+                    <>
+                      <span>•</span>
+                      <span className="text-pink-400">Custom Goal Mode</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

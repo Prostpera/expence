@@ -37,6 +37,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     startQuest, 
     completeQuest, 
     pauseQuest, 
+    removeQuest,
     generateInitialQuests 
   } = useQuests();
   
@@ -80,6 +81,12 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
 
   const handlePauseQuest = (questId: string) => {
     pauseQuest(questId);
+  };
+
+  const handleDeleteQuest = (questId: string) => {
+    if (window.confirm('Are you sure you want to delete this quest?')) {
+        removeQuest(questId);
+    }
   };
 
   const getCategoryIcon = (category: QuestCategory) => {
@@ -212,6 +219,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
                       onStart={handleStartQuest}
                       onComplete={handleCompleteQuest}
                       onPause={handlePauseQuest}
+                      onDelete={handleDeleteQuest}
                       onViewDetails={(questId) => console.log('View details:', questId)}
                     />
                   ))}
@@ -229,6 +237,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
               onStart={handleStartQuest}
               onComplete={handleCompleteQuest}
               onPause={handlePauseQuest}
+              onDelete={handleDeleteQuest}
               onViewDetails={(questId) => console.log('View details:', questId)}
             />
           ))}

@@ -16,7 +16,8 @@ import {
   CheckCircle,
   AlertCircle,
   Play,
-  Pause
+  Pause,
+  X
 } from 'lucide-react';
 
 interface QuestCardProps {
@@ -24,6 +25,7 @@ interface QuestCardProps {
   onStart?: (questId: string) => void;
   onComplete?: (questId: string) => void;
   onPause?: (questId: string) => void;
+  onDelete?: (questId: string) => void;
   onViewDetails?: (questId: string) => void;
 }
 
@@ -32,6 +34,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
   onStart,
   onComplete,
   onPause,
+  onDelete,
   onViewDetails
 }) => {
   const getCategoryColor = (category: QuestCategory): string => {
@@ -216,6 +219,16 @@ const QuestCard: React.FC<QuestCardProps> = ({
               className="px-2 py-1 text-xs font-bold rounded bg-gray-600 hover:bg-gray-700 text-white transition-all duration-300"
             >
               <Pause size={12} />
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              onClick={() => onDelete(quest.id)}
+              className="px-2 py-1 text-xs font-bold rounded bg-red-600 hover:bg-red-700 text-white transition-all duration-300"
+              title="Delete Quest"
+            >
+              <X size={12} />
             </button>
           )}
 
