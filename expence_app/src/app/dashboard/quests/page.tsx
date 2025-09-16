@@ -1,3 +1,5 @@
+
+//quests page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -5,27 +7,10 @@ import Header from '@/components/Header';
 import ChatbotModal from '@/components/ChatbotModal';
 import QuestDashboard from '@/components/QuestDashboard';
 import QuestGenerationModal from '@/components/QuestGenerationModal';
-import { QuestProvider, useQuests } from '@/contexts/QuestContext';
 import { Quest, UserContext, QuestDifficulty } from '@/types/quest';
 import { Plus, Sparkles, Brain, TrendingUp } from 'lucide-react';
+import { useQuests } from '@/contexts/QuestContext';
 import Image from 'next/image';
-
-// Mock user context. Later it should come from auth/user service in prod
-const mockUserContext: UserContext = {
-  financialGoals: ['emergency_fund', 'debt_payoff', 'investing'],
-  currentLevel: 5,
-  completedQuests: ['main_001', 'side_001'],
-  preferences: {
-    riskTolerance: 'medium',
-    learningStyle: 'practical',
-    timeCommitment: 'moderate'
-  },
-  demographics: {
-    age: 22,
-    income: 45000,
-    educationLevel: 'college'
-  }
-};
 
 // Inner component that uses the quest context
 function QuestPageContent() {
@@ -82,7 +67,6 @@ function QuestPageContent() {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAIGenerated: false,
-      userContext: mockUserContext
     };
 
     addQuest(customQuest);
@@ -102,7 +86,6 @@ function QuestPageContent() {
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">        
         {/* Quest Header and Dashboard */}
         <QuestDashboard
-          userContext={mockUserContext}
           onCreateCustomQuest={handleCreateCustomQuest}
           onGenerateAIQuest={handleGenerateAIQuest}
         />
@@ -112,7 +95,6 @@ function QuestPageContent() {
           isOpen={isAIModalOpen}
           onClose={() => setIsAIModalOpen(false)}
           onQuestGenerated={handleQuestGenerated}
-          userContext={mockUserContext}
         />
 
         {/* Custom Quest Modal */}
@@ -195,9 +177,5 @@ function QuestPageContent() {
 
 // Main component that provides the quest context
 export default function QuestsPage() {
-  return (
-    <QuestProvider userContext={mockUserContext}>
-      <QuestPageContent />
-    </QuestProvider>
-  );
+  return <QuestPageContent />;
 }

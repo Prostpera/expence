@@ -36,7 +36,7 @@ export class AIQuestGenerator {
 
   constructor() {
     this.config = {
-      modelName: 'claude-3-sonnet-20240229',
+      modelName: 'claude-sonnet-4-20250514',
       temperature: 0.7,
       maxTokens: 1000,
       apiKey: process.env.ANTHROPIC_API_KEY
@@ -85,17 +85,23 @@ export class AIQuestGenerator {
 
   private initializeLangChain(): void {
     try {
-      if (this.config.apiKey && this.config.apiKey.startsWith('sk-ant-')) {
+      // Check for API key in different ways
+      const apiKey = this.config.apiKey || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+      
+      console.log('🔑 Checking API key:', apiKey ? '***' + apiKey.slice(-8) : 'Not found');
+      
+      if (apiKey && apiKey.startsWith('sk-ant-')) {
         this.llm = new ChatAnthropic({
           model: this.config.modelName,
           temperature: this.config.temperature,
           maxTokens: this.config.maxTokens,
-          anthropicApiKey: this.config.apiKey,
+          anthropicApiKey: apiKey,
         });
         this.isAIEnabled = true;
         console.log('✅ LangChain initialized with Claude model:', this.config.modelName);
       } else {
         console.warn('⚠️  No valid Anthropic API key found, using fallback mode');
+        console.log('🔍 Available env vars:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')));
         this.isAIEnabled = false;
       }
     } catch (error) {
