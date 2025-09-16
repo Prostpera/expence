@@ -10,6 +10,7 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.62.0",
     "@langchain/anthropic": "^0.3.27",
     "@langchain/community": "^0.3.55",
     "@langchain/openai": "^0.6.11",

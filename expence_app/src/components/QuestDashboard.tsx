@@ -19,18 +19,18 @@ import {
   Sparkles,
   RefreshCw
 } from 'lucide-react';
+import { useUserContext } from './QuestWrapper';
 
 interface QuestDashboardProps {
-  userContext: UserContext;
   onCreateCustomQuest?: () => void;
   onGenerateAIQuest?: () => void;
 }
 
 const QuestDashboard: React.FC<QuestDashboardProps> = ({
-  userContext,
   onCreateCustomQuest,
   onGenerateAIQuest
 }) => {
+  const userContext = useUserContext();
   const { 
     quests, 
     loading, 

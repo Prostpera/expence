@@ -1,10 +1,11 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
+import { QuestWrapper } from '@/components/QuestWrapper';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
-  weight: ['500', '700'], // these match the cyberpunk style well
+  weight: ['500', '700'],
   variable: '--font-orbitron',
 });
 
@@ -21,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${orbitron.variable} dark`}>
       <body className="min-h-screen bg-gray-950 text-gray-100 font-techno">
-        {children}
+        <QuestWrapper>
+          {children}
+        </QuestWrapper>
       </body>
     </html>
   );

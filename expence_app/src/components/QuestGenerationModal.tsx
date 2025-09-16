@@ -20,20 +20,23 @@ import {
   Target,
   Lightbulb
 } from 'lucide-react';
+import { useQuests } from '@/contexts/QuestContext';
+import { useUserContext } from './QuestWrapper';
+
 
 interface QuestGenerationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onQuestGenerated: (quest: Quest) => void;
-  userContext: UserContext;
 }
 
 const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
   isOpen,
   onClose,
   onQuestGenerated,
-  userContext
 }) => {
+  const { quests } = useQuests();
+  const userContext = useUserContext();
   const [generatedQuests, setGeneratedQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<QuestCategory | ''>('');
@@ -60,6 +63,8 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
     setValidationIssues({});
 
     try {
+      console.log('DEBUG: AI enabled?', aiQuestGenerator.isAIAvailable());
+      console.log('DEBUG: Model info:', aiQuestGenerator.getModelInfo());
       let quests: Quest[] = [];
 
       if (generationType === 'custom' && customPrompt.trim()) {
