@@ -1,3 +1,4 @@
+//dashboard page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -8,20 +9,23 @@ import {
   Compass, 
   Users, 
   Trophy,
-  Settings, 
-  LogOut, 
-  ChevronLeft, 
-  ChevronRight,
-  Wallet, 
   BarChart3,
   Briefcase,
   AlertTriangle,
   PiggyBank
 } from 'lucide-react';
 import Image from 'next/image';
+import { useQuests } from '@/contexts/QuestContext';
 
-export default function Dashboard() {
+// Create a new component that uses the quest context
+export default function DashboardContent() {
+  const { quests } = useQuests();
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  
+  // Calculate quest counts dynamically
+  const activeQuests = quests.filter(q => q.status === 'new' || q.status === 'in_progress');
+  const mainQuests = quests.filter(q => q.category === 'main_story');
+  const sideQuests = quests.filter(q => q.category === 'side_jobs');
   
   const handleBriefcaseClick = () => {
     setIsChatbotOpen(true);
@@ -56,7 +60,9 @@ export default function Dashboard() {
           <Link href="/dashboard/quests" className="group col-span-1 md:col-span-2">
             <div className="relative bg-cyan-900 bg-opacity-30 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-cyan-500 hover:bg-opacity-75">
               <div className="relative">
-                <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white">3</div>
+                <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                  {activeQuests.length}  {/* <-- Use the dynamic count */}
+                </div>
                 <Compass size={20} className="text-cyan-400 mx-auto" />
               </div>
               <div className="text-white font-medium text-sm mt-1">QUESTS</div>
@@ -119,22 +125,24 @@ export default function Dashboard() {
           </div>
           
           {/* ACTIVE_QUESTS card */}
-          <Link href="/dashboard/quests" className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group sm:col-span-2 lg:col-span-1 border border-yellow-500">
-          <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group sm:col-span-2 lg:col-span-1 border border-yellow-500">
-            <div className="absolute top-0 right-0 w-8 h-8 bg-yellow-900 clip-corner-rotated"></div>
-            <div className="absolute bottom-0 left-0 w-5 h-1 bg-yellow-500 group-hover:w-full transition-all duration-300"></div>
-            <div className="p-6">
-              <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
-                <Briefcase size={18} className="mr-2 text-yellow-400" />
-                <span>ACTIVE_QUESTS</span>
-              </h2>
-              <p className="mt-2 text-3xl font-bold text-yellow-400">3</p>
-              <div className="mt-4 text-xs text-gray-500 flex items-center">
-                <AlertTriangle size={10} className="mr-1 text-yellow-500" />
-                <span>2 MISSIONS PENDING</span>
+          <Link href="/dashboard/quests" className="block">
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group sm:col-span-2 lg:col-span-1 border border-yellow-500 hover:bg-opacity-90 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-8 h-8 bg-yellow-900 clip-corner-rotated"></div>
+              <div className="absolute bottom-0 left-0 w-5 h-1 bg-yellow-500 group-hover:w-full transition-all duration-300"></div>
+              <div className="p-6">
+                <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
+                  <Briefcase size={18} className="mr-2 text-yellow-400" />
+                  <span>ACTIVE_QUESTS</span>
+                </h2>
+                <p className="mt-2 text-3xl font-bold text-yellow-400">
+                  {activeQuests.length}
+                </p>
+                <div className="mt-4 text-xs text-gray-500 flex items-center">
+                  <AlertTriangle size={10} className="mr-1 text-yellow-500" />
+                  <span>AI GENERATED AVAILABLE</span>
+                </div>
               </div>
             </div>
-          </div>
           </Link>
         </div>
         
