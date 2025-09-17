@@ -13,8 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'No message provided' });
   }
 
-  // 🚨 Fix: Correct the model name to one you have access to
-  const modelName = 'claude-sonnet-4-20250514'; // Or 'claude-3-haiku-20240307'
+  const modelName = 'claude-sonnet-4-20250514';
 
   try {
     const model = new ChatAnthropic({
