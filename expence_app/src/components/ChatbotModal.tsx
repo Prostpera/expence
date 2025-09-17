@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { X, Send, Minimize, Maximize } from 'lucide-react';
 import Image from 'next/image';
@@ -28,7 +29,6 @@ const ChatbotModal = ({ isOpen, onClose }: ChatbotModalProps) => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of messages
   useEffect(() => {
     if (messagesEndRef.current && !isMinimized) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });

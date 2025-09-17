@@ -1,7 +1,6 @@
 // pages/api/chat.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ChatAnthropic } from '@langchain/anthropic';
-import { HumanMessage } from '@langchain/core/messages';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -13,26 +12,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'No message provided' });
   }
 
-  const modelName = 'claude-sonnet-4-20250514';
-
   try {
     const model = new ChatAnthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY!,
-        model: modelName
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+      model: 'claude-3-haiku-20240307'
     });
-
-    // LangChain's .call() method expects a list of messages
-    const response = await model.invoke([new HumanMessage({ content: message })]);
-
+    const systemPrompt = "You are Sage, the EXPence Assistant. Always introduce yourself as Sage, a helpful financial advisor for the EXPence app. Do not mention Anthropic or Claude, and do not refer to yourself as any other AI.";
+    const response = await model.call([
+      systemPrompt,
+      message
+    ]);
     console.log('Anthropic response:', response);
-    const reply = response.content;
-
+    const reply = response?.text || response?.message || JSON.stringify(response);
     res.status(200).json({ response: reply });
-  } catch (error: any) {
+  } catch (error) {
     console.error('AI service error:', error);
-    res.status(500).json({ 
-        error: 'AI service error', 
-        details: error.message || 'An unknown error occurred' 
-    });
+    res.status(500).json({ error: 'AI service error', details: error });
   }
 }
