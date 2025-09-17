@@ -17,13 +17,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       apiKey: process.env.ANTHROPIC_API_KEY!,
       model: 'claude-3-haiku-20240307'
     });
-    const systemPrompt = "You are Sage, the EXPence Assistant. Always introduce yourself as Sage, a helpful financial advisor for the EXPence app. Do not mention Anthropic or Claude, and do not refer to yourself as any other AI.";
+    const systemPrompt = "You are Sage, the EXPence Assistant. Only introduce yourself as Sage when asked. you are a helpful financial advisor for the EXPence app. Do not mention Anthropic or Claude, and do not refer to yourself as any other AI.";
     const response = await model.call([
       systemPrompt,
       message
     ]);
     console.log('Anthropic response:', response);
-    const reply = response?.text || response?.message || JSON.stringify(response);
+    const reply = response?.text || JSON.stringify(response);
     res.status(200).json({ response: reply });
   } catch (error) {
     console.error('AI service error:', error);
