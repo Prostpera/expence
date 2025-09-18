@@ -1,6 +1,5 @@
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd());
 
 import { AIQuestGenerator } from '../../src/services/aiQuestGenerator';
 import { mockUserContext, mockUserContexts } from '../utils/testUtils';
