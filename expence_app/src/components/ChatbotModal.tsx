@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { X, Send, Minimize, Maximize } from 'lucide-react';
 import Image from 'next/image';
