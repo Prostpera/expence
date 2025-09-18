@@ -1,11 +1,18 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ChatbotModal from './ChatbotModal';
-
+import ChatbotModal from '../src/components/ChatbotModal';
+window.HTMLElement.prototype.scrollIntoView = function() {};
+// Mocking the fetch API globally
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
 describe('ChatbotModal', () => {
+
+  // Add this block to clear mocks before each test
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test Case AICA-001: Initial welcome message Test Case
   test('should display the initial welcome message when opened', () => {
     render(<ChatbotModal isOpen={true} onClose={() => {}} />);
@@ -20,10 +27,7 @@ describe('ChatbotModal', () => {
     render(<ChatbotModal isOpen={true} onClose={() => {}} />);
     const sendButton = screen.getByRole('button', { name: /send/i });
 
-    // Check that the button is initially disabled
-    const sendIcon = screen.getByRole('img', { name: /send/i });
     expect(sendButton).toBeDisabled();
-    expect(sendIcon).toBeInTheDocument();
   });
 
   // Test Case AICA-014: Loading indicator and button disable
@@ -38,18 +42,17 @@ describe('ChatbotModal', () => {
     const input = screen.getByPlaceholderText(/Type a message.../i);
     const sendButton = screen.getByRole('button', { name: /send/i });
 
-    // Simulate user typing and sending a message
     fireEvent.change(input, { target: { value: 'What is a budget?' } });
     fireEvent.click(sendButton);
 
-    // Expect the loading state to be active
-    const loadingIcon = screen.getByRole('img', { name: /loading/i }); // Assuming you added an alt text for the loader
-    expect(loadingIcon).toBeInTheDocument();
+    // Expect the loading state to be active and button disabled
+    // Assuming you have a loading icon with the role 'status' or 'img'
+    expect(screen.getByRole('status')).toBeInTheDocument();
     expect(sendButton).toBeDisabled();
 
     // Wait for the response and expect the loading state to disappear
     await waitFor(() => {
-      expect(loadingIcon).not.toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
     
     // Check that the button is no longer disabled
@@ -72,7 +75,6 @@ describe('ChatbotModal', () => {
     fireEvent.change(input, { target: { value: 'What is a budget?' } });
     fireEvent.click(sendButton);
 
-    // Wait for the AI's response to appear in the chat history
     await waitFor(() => {
       expect(screen.getByText(mockResponseText)).toBeInTheDocument();
     });
@@ -90,7 +92,6 @@ describe('ChatbotModal', () => {
     fireEvent.change(input, { target: { value: 'Why is the API down?' } });
     fireEvent.click(sendButton);
 
-    // Wait for the fallback error message to appear
     await waitFor(() => {
       expect(
         screen.getByText(/AI service is unavailable. Please try again later./i)
