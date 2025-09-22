@@ -5,22 +5,31 @@ const createJestConfig = nextJest({
 })
 
 const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  rootDir: '.',
   testEnvironment: 'jest-environment-jsdom',
-  // Load environment variables from .env.local
+  setupFilesAfterEnv: [
+    '@testing-library/jest-dom',
+    '<rootDir>/jest.setup.js'
+  ],
   setupFiles: ['<rootDir>/jest.env.js'],
+  transform: {
+    '^.+\\.[jt]sx?$': ['babel-jest', { configFile: './test-config/babel.config.jest.js' }],
+  },
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[jt]s?(x)',
+    '**/__tests__/**/*.(ts|tsx)',
+    '**/*.(test|spec).(ts|tsx)'
+  ],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
+    'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
     '!src/app/**/*.tsx',
   ],
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.(ts|tsx)',
-    '**/*.(test|spec).(ts|tsx)'
-  ]
 }
 
 module.exports = createJestConfig(customJestConfig)
