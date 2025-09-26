@@ -1,9 +1,11 @@
 import Header from '@/components/Header';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function Leaderboard() {
+  const { signOut } = useAuth();
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-neonGreen font-mono">
-      <Header />
+      <Header onSignOut={signOut} />
 
       <main className="mx-auto max-w-7xl p-6">
         <h1 className="mb-6 text-4xl font-extrabold text-neonPink tracking-wider neon-text">
