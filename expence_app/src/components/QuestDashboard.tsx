@@ -46,6 +46,8 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    console.log('QuestDashboard - quests updated:', quests);
+    console.log('QuestDashboard - quests length:', quests.length);
     filterQuests();
   }, [quests, activeCategory, searchTerm]); 
 

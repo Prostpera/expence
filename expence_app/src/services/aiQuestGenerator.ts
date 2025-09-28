@@ -87,9 +87,7 @@ export class AIQuestGenerator {
     try {
       // Check for API key in different ways
       const apiKey = this.config.apiKey || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
-      
-      console.log('🔑 Checking API key:', apiKey ? '***' + apiKey.slice(-8) : 'Not found');
-      
+            
       if (apiKey && apiKey.startsWith('sk-ant-')) {
         this.llm = new ChatAnthropic({
           model: this.config.modelName,
@@ -98,14 +96,13 @@ export class AIQuestGenerator {
           anthropicApiKey: apiKey,
         });
         this.isAIEnabled = true;
-        console.log('✅ LangChain initialized with Claude model:', this.config.modelName);
+        console.log('LangChain initialized with Claude model:', this.config.modelName);
       } else {
-        console.warn('⚠️  No valid Anthropic API key found, using fallback mode');
-        console.log('🔍 Available env vars:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')));
+        console.warn('No valid Anthropic API key found, using fallback mode');
         this.isAIEnabled = false;
       }
     } catch (error) {
-      console.error('❌ Failed to initialize LangChain:', error);
+      console.error('Failed to initialize LangChain:', error);
       this.isAIEnabled = false;
     }
   }
@@ -120,10 +117,10 @@ export class AIQuestGenerator {
       let aiQuestData: AIGeneratedQuestData;
 
       if (this.isAIEnabled && this.llm) {
-        console.log('🎯 Generating custom quest with Claude for:', userPrompt);
+        console.log('Generating custom quest with Claude for:', userPrompt);
         aiQuestData = await this.generateCustomWithLangChain(userContext, userPrompt, preferredCategory, preferredDifficulty);
       } else {
-        console.log('🔄 Using template-based custom quest generation...');
+        console.log('Using template-based custom quest generation...');
         aiQuestData = await this.generateCustomFromTemplate(userContext, userPrompt, preferredCategory, preferredDifficulty);
       }
       
@@ -153,13 +150,13 @@ export class AIQuestGenerator {
         new HumanMessage(customUserPrompt)
       ];
 
-      console.log('📤 Sending custom quest request to Claude...');
+      console.log('Sending custom quest request to Claude...');
       const response = await this.llm.invoke(messages);
-      console.log('📥 Received custom quest response from Claude');
+      console.log('Received custom quest response from Claude');
 
       return this.parseAIResponse(response.content as string);
     } catch (error) {
-      console.error('❌ Custom LangChain generation failed:', error);
+      console.error('Custom LangChain generation failed:', error);
       throw error;
     }
   }
@@ -359,10 +356,10 @@ Make it specific to their request and achievable for their profile!`;
       let aiQuestData: AIGeneratedQuestData;
 
       if (this.isAIEnabled && this.llm) {
-        console.log('🤖 Generating quest with Claude...');
+        console.log('Generating quest with Claude...');
         aiQuestData = await this.generateWithLangChain(userContext, preferredCategory, preferredDifficulty);
       } else {
-        console.log('🔄 Using fallback quest generation...');
+        console.log('Using fallback quest generation...');
         aiQuestData = await this.generateFromTemplate(userContext, preferredCategory, preferredDifficulty);
       }
       
@@ -391,13 +388,13 @@ Make it specific to their request and achievable for their profile!`;
         new HumanMessage(userPrompt)
       ];
 
-      console.log('📤 Sending request to Claude...');
+      console.log('Sending request to Claude...');
       const response = await this.llm.invoke(messages);
-      console.log('📥 Received response from Claude');
+      console.log('Received response from Claude');
 
       return this.parseAIResponse(response.content as string);
     } catch (error) {
-      console.error('❌ LangChain generation failed:', error);
+      console.error('LangChain generation failed:', error);
       throw error;
     }
   }
@@ -520,12 +517,12 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
     const quests: Quest[] = [];
     const categories = [QuestCategory.MAIN_STORY, QuestCategory.IMPORTANT, QuestCategory.SIDE_JOBS];
     
-    console.log(`🎯 Generating ${count} quests...`);
+    console.log(`Generating ${count} quests...`);
     
     for (let i = 0; i < count; i++) {
       try {
         const category = categories[i % categories.length];
-        console.log(`🔄 Generating quest ${i + 1}/${count} (${category})`);
+        console.log(`Generating quest ${i + 1}/${count} (${category})`);
         
         const quest = await this.generatePersonalizedQuest(userContext, category);
         quests.push(quest);
@@ -535,12 +532,12 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
-        console.warn(`❌ Failed to generate quest ${i + 1}:`, error);
+        console.warn(`Failed to generate quest ${i + 1}:`, error);
         // Continue with other quests even if one fails
       }
     }
     
-    console.log(`✅ Generated ${quests.length}/${count} quests successfully`);
+    console.log(`Generated ${quests.length}/${count} quests successfully`);
     return quests;
   }
 
