@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useQuests } from '@/contexts/QuestContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 
-// Create a new component that uses the quest context
 export default function DashboardContent() {
   const { quests } = useQuests();
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -30,6 +30,8 @@ export default function DashboardContent() {
   const handleBriefcaseClick = () => {
     setIsChatbotOpen(true);
   };
+
+  const { signOut } = useAuth();
   
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden flex flex-col">
@@ -38,7 +40,7 @@ export default function DashboardContent() {
       <div className="absolute inset-0 bg-[linear-gradient(transparent_0px,transparent_1px,#3c3c5c_1px,transparent_2px,transparent_4px)] bg-[size:100%_4px] opacity-5 z-0"></div>
       
       {/* Header Bar */}
-      <Header/>
+      <Header onSignOut={signOut} />
       
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">
         <div className="flex items-center mb-6">
