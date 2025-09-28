@@ -47,7 +47,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
 
   useEffect(() => {
     filterQuests();
-  }, [quests, activeCategory, searchTerm]);
+  }, [quests, activeCategory, searchTerm]); 
 
   const generateMoreQuests = () => {
     generateInitialQuests(userContext);
