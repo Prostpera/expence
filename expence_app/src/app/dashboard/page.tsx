@@ -91,44 +91,56 @@ export default function DashboardContent() {
         </div>
         
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* TOTAL_EXPENSES card */}
-          <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-purple-500">
-            <div className="absolute top-0 right-0 w-8 h-8 bg-purple-900 clip-corner-rotated"></div>
+          {/* STORY_QUEST card */}
+          <Link href="/dashboard/quests?category=story" className="block">
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-cyan-500 hover:bg-opacity-90 transition-all duration-300">
+              {/* Rotated corner */}
+              <div className="absolute top-0 right-0 w-8 h-8 bg-cyan-900 clip-corner-rotated"></div>
+              <div className="absolute bottom-0 left-0 w-5 h-1 bg-cyan-500 group-hover:w-full transition-all duration-300"></div>
                         
-            <div className="p-6">
-              <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
-                <BarChart3 size={18} className="mr-2 text-purple-400" />
-                <span>TOTAL_EXPENSES</span>
-              </h2>
-              <p className="mt-2 text-3xl font-bold text-purple-400">$1,245.00</p>
-              <div className="mt-4 text-xs text-gray-500 flex items-center">
-                <AlertTriangle size={10} className="mr-1 text-purple-500" />
-                <span>LAST_UPDATED: TODAY</span>
+              <div className="p-6">
+                <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
+                  <Compass size={18} className="mr-2 text-cyan-400" />
+                  <span>STORY_QUEST</span>
+                </h2>
+                <p className="mt-2 text-3xl font-bold text-cyan-400">
+                  {mainQuests.length}
+                </p>
+                <div className="mt-4 text-xs text-gray-500 flex items-center">
+                  <AlertTriangle size={10} className="mr-1 text-cyan-500" />
+                  <span>MAIN STORYLINE</span>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
           
-          {/* MONTHLY_SAVING card */}
-          <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-cyan-500">
-            {/* Rotated corner */}
-            <div className="absolute top-0 right-0 w-8 h-8 bg-cyan-900 clip-corner-rotated"></div>
+          {/* LEARNING_QUEST card */}
+          <Link href="/dashboard/quests?category=learning" className="block">
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-green-500 hover:bg-opacity-90 transition-all duration-300">
+              {/* Rotated corner */}
+              <div className="absolute top-0 right-0 w-8 h-8 bg-green-900 clip-corner-rotated"></div>
+              <div className="absolute bottom-0 left-0 w-5 h-1 bg-green-500 group-hover:w-full transition-all duration-300"></div>
                         
-            <div className="p-6">
-              <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
-                <PiggyBank size={18} className="mr-2 text-cyan-400" />
-                <span>MONTHLY_SAVING</span>
-              </h2>
-              <p className="mt-2 text-3xl font-bold text-cyan-400">$326.50</p>
-              <div className="mt-4 text-xs text-gray-500 flex items-center">
-                <AlertTriangle size={10} className="mr-1 text-cyan-500" />
-                <span>TARGET: $500.00</span>
+              <div className="p-6">
+                <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
+                  <BarChart3 size={18} className="mr-2 text-green-400" />
+                  <span>LEARNING_QUEST</span>
+                </h2>
+                <p className="mt-2 text-3xl font-bold text-green-400">
+                  {sideQuests.length}
+                </p>
+                <div className="mt-4 text-xs text-gray-500 flex items-center">
+                  <AlertTriangle size={10} className="mr-1 text-green-500" />
+                  <span>SKILL BUILDING</span>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
+          
           
           {/* ACTIVE_QUESTS card */}
           <Link href="/dashboard/quests" className="block">
-            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group sm:col-span-2 lg:col-span-1 border border-yellow-500 hover:bg-opacity-90 transition-all duration-300">
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-yellow-500 hover:bg-opacity-90 transition-all duration-300">
               <div className="absolute top-0 right-0 w-8 h-8 bg-yellow-900 clip-corner-rotated"></div>
               <div className="absolute bottom-0 left-0 w-5 h-1 bg-yellow-500 group-hover:w-full transition-all duration-300"></div>
               <div className="p-6">
@@ -141,7 +153,7 @@ export default function DashboardContent() {
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
                   <AlertTriangle size={10} className="mr-1 text-yellow-500" />
-                  <span>AI GENERATED AVAILABLE</span>
+                  <span>IN PROGRESS</span>
                 </div>
               </div>
             </div>
