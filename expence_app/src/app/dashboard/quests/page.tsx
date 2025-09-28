@@ -12,6 +12,8 @@ import { Plus, Sparkles, Brain, TrendingUp } from 'lucide-react';
 import { useQuests } from '@/contexts/QuestContext';
 import Image from 'next/image';
 
+import { useAuth } from '@/components/auth/AuthProvider';
+
 // Inner component that uses the quest context
 function QuestPageContent() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -74,6 +76,8 @@ function QuestPageContent() {
     setCustomQuestData({ title: '', description: '', goal: '', days: '' });
     console.log('Custom quest created:', customQuest.title);
   };
+  
+  const { signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden flex flex-col">
@@ -81,7 +85,7 @@ function QuestPageContent() {
       <div className="absolute inset-0 bg-[radial-gradient(#1e1e30_1px,transparent_1px)] bg-[size:24px_24px] opacity-30 z-0"></div>
       <div className="absolute inset-0 bg-[linear-gradient(transparent_0px,transparent_1px,#3c3c5c_1px,transparent_2px,transparent_4px)] bg-[size:100%_4px] opacity-5 z-0"></div>
 
-      <Header />
+      <Header onSignOut={signOut} />
 
       <main className="flex-1 w-full max-w-7xl p-4 md:p-6 mx-auto relative z-10">        
         {/* Quest Header and Dashboard */}

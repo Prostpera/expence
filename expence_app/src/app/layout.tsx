@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
 import { QuestWrapper } from '@/components/QuestWrapper';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${orbitron.variable} dark`}>
       <body className="min-h-screen bg-gray-950 text-gray-100 font-techno">
-        <QuestWrapper>
-          {children}
-        </QuestWrapper>
+        <AuthProvider>
+          <QuestWrapper>
+            {children}
+          </QuestWrapper>
+        </AuthProvider>
       </body>
     </html>
   );
