@@ -4,7 +4,7 @@ import { userQuestService } from '@/services/userQuestService';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { questId: string } }
+  context: { params: Promise<{ questId: string }> }
 ) {
   try {
     const supabase = await createServerSupabase();
@@ -14,7 +14,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const quest = await userQuestService.getUserQuest(params.questId, user.id);
+    const { questId } = await context.params;
+    const quest = await userQuestService.getUserQuest(questId, user.id);
 
     if (!quest) {
       return NextResponse.json({ error: 'Quest not found' }, { status: 404 });
@@ -32,7 +33,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { questId: string } }
+  context: { params: Promise<{ questId: string }> }
 ) {
   try {
     const supabase = await createServerSupabase();
@@ -51,8 +52,9 @@ export async function PATCH(
       );
     }
 
+    const { questId } = await context.params;
     const result = await userQuestService.updateQuestProgress(
-      params.questId, 
+      questId, 
       user.id, 
       progress
     );
@@ -79,7 +81,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ questId: string }> }  // Add Promise here
+  context: { params: Promise<{ questId: string }> }
 ) {
   try {
     const supabase = await createServerSupabase();
@@ -89,7 +91,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { questId } = await params;  // Await params here
+    const { questId } = await context.params;
     const success = await userQuestService.deleteQuest(questId, user.id);
 
     if (!success) {
