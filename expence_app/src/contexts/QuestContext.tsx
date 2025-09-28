@@ -46,17 +46,11 @@ export const QuestProvider: React.FC<QuestProviderProps> = ({ children, userCont
     setLoading(true);
     try {
       const response = await fetch('/api/quests');
-      console.log('API Response status:', response.status);
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('Raw API data:', data);
-        console.log('Quests array:', data.quests);
-        console.log('Number of quests:', data.quests?.length || 0);
         setQuests(data.quests || []);
       } else {
-        const errorText = await response.text();
-        console.error('Failed to load quests:', errorText);
+        console.error('Failed to load quests from database');
       }
     } catch (error) {
       console.error('Error loading quests:', error);
@@ -173,8 +167,18 @@ export const QuestProvider: React.FC<QuestProviderProps> = ({ children, userCont
     if (!user) return;
     
     try {
-      const response = await fetch(`/api/quests/${questId}/complete`, {
-        method: 'POST'
+      // Find the quest to get its goal value
+      const quest = quests.find(q => q.id === questId);
+      if (!quest) {
+        console.error('Quest not found for completion');
+        return;
+      }
+
+      // Use PATCH to set progress to goal (which triggers completion)
+      const response = await fetch(`/api/quests/${questId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progress: quest.goal })
       });
       
       if (response.ok) {
