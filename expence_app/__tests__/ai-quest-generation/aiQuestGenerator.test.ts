@@ -93,9 +93,6 @@ describe('AIQuestGenerator - Real API Tests', () => {
       const advancedQuest = await generator.generatePersonalizedQuest(mockUserContexts.advanced);
 
       expect(beginnerQuest.title).not.toBe(advancedQuest.title);
-      
-      console.log('Beginner quest:', beginnerQuest.title);
-      console.log('Advanced quest:', advancedQuest.title);
     }, 20000);
   });
 
