@@ -202,19 +202,15 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
   }
 ];
 
-// Quest difficulty multipliers
+// Difficulty multipliers for rewards
 export const DIFFICULTY_MULTIPLIERS = {
   [QuestDifficulty.EASY]: { exp: 1.0, coin: 1.0 },
-  [QuestDifficulty.MEDIUM]: { exp: 1.5, coin: 1.5 },
-  [QuestDifficulty.HARD]: { exp: 2.0, coin: 2.0 }
+  [QuestDifficulty.MEDIUM]: { exp: 1.5, coin: 1.3 },
+  [QuestDifficulty.HARD]: { exp: 2.0, coin: 1.8 }
 };
 
-// Level-based scaling
+// Level scaling for rewards
 export const LEVEL_SCALING = {
-  getExpMultiplier: (userLevel: number): number => {
-    return 1 + (userLevel - 1) * 0.1; // 10% increase per level
-  },
-  getCoinMultiplier: (userLevel: number): number => {
-    return 1 + (userLevel - 1) * 0.05; // 5% increase per level
-  }
+  getExpMultiplier: (level: number): number => 1.0 + (level - 1) * 0.1,
+  getCoinMultiplier: (level: number): number => 1.0 + (level - 1) * 0.05
 };

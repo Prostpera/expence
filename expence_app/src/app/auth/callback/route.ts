@@ -7,17 +7,14 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
 
   if (code) {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const supabase = createRouteHandlerClient({ cookies: () => cookies() })
     
     try {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-      
       if (error) {
         console.error('Error exchanging code for session:', error)
         return NextResponse.redirect(`${requestUrl.origin}/?error=auth_error`)
       }
-
       // Redirect to dashboard on successful auth
       return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
     } catch (error) {
