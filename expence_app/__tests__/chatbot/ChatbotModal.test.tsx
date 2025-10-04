@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ChatbotModal from '../src/components/ChatbotModal';
+import ChatbotModal from '../../src/components/ChatbotModal';
 window.HTMLElement.prototype.scrollIntoView = function() {};
 // Mocking the fetch API globally
 const mockFetch = jest.fn();
