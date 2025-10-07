@@ -2,8 +2,11 @@
 
 import Link from 'next/link';
 import { LogOut, LayoutDashboard } from 'lucide-react';
+import { useUserProgress } from '@/contexts/UserProgressContext'; // ← add
 
 export default function Header() {
+  const { progress } = useUserProgress(); // ← read current level
+
   return (
     <header className="bg-gray-900 shadow-md relative z-20 border-b border-purple-900">
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-purple-600"></div>
@@ -12,7 +15,7 @@ export default function Header() {
         {/* User Info */}
         <div className="flex flex-col">
           <div className="text-white font-medium text-sm">USER_42X</div>
-          <div className="text-xs text-cyan-400">LEVEL 7</div>
+          <div className="text-xs text-cyan-400">LEVEL {progress.level}</div>{/* ← replaced */}
         </div>
 
         {/* Bread Currency */}
