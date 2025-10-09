@@ -2,6 +2,8 @@
 
 import Header from '@/components/Header';
 import { useAuth } from '@/components/auth/AuthProvider';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Leaderboard() {
   const { signOut } = useAuth();
@@ -10,9 +12,13 @@ export default function Leaderboard() {
       <Header onSignOut={signOut} />
 
       <main className="mx-auto max-w-7xl p-6">
-        <h1 className="mb-6 text-4xl font-extrabold text-neonPink tracking-wider neon-text">
-          LEADERBOARD
-        </h1>
+        <div className="mb-4">
+          <Link href="/dashboard" className="inline-flex items-center text-gray-400 hover:text-neonCyan transition-colors group text-sm">
+            <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="tracking-wide">BACK</span>
+          </Link>
+        </div>
+        <h1 className="mb-6 text-4xl font-extrabold text-neonPink tracking-wider neon-text">LEADERBOARD</h1>
 
         {/* Filter Options */}
         <div className="mb-6 flex flex-wrap items-center space-x-4">

@@ -1,4 +1,6 @@
 import Header from '@/components/Header';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Social() {
   return (
@@ -6,6 +8,13 @@ export default function Social() {
       <Header />
       
       <main className="mx-auto max-w-7xl p-6">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Link href="/dashboard" className="inline-flex items-center text-gray-400 hover:text-cyan-400 transition-colors group text-sm">
+            <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="tracking-wide">BACK</span>
+          </Link>
+        </div>
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-cyan-400 animate-pulse [text-shadow:_0_0_10px_rgb(34_211_238_/_50%)]">Friends</h1>
           
