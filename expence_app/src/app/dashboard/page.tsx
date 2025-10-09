@@ -12,10 +12,13 @@ import {
   BarChart3,
   Briefcase,
   AlertTriangle,
-  PiggyBank
+  PiggyBank,
+  CheckCircle2,
+  PlusCircle
 } from 'lucide-react';
 import Image from 'next/image';
 import { useQuests } from '@/contexts/QuestContext';
+import { QuestStatus } from '@/types/quest';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function DashboardContent() {
@@ -26,6 +29,32 @@ export default function DashboardContent() {
   const activeQuests = quests.filter(q => q.status === 'new' || q.status === 'in_progress');
   const mainQuests = quests.filter(q => q.category === 'main_story');
   const sideQuests = quests.filter(q => q.category === 'side_jobs');
+
+  // Recently completed quests (limit 5)
+  const completedQuests = quests
+    .filter(q => q.status === QuestStatus.COMPLETED)
+    .sort((a, b) => {
+      const aDate = new Date(a.completedAt || a.updatedAt).getTime();
+      const bDate = new Date(b.completedAt || b.updatedAt).getTime();
+      return bDate - aDate;
+    })
+    .slice(0, 5);
+
+  // Recently created quests (limit 5) (exclude those already completed to avoid duplication)
+  const recentlyCreatedQuests = quests
+    .filter(q => q.status !== QuestStatus.COMPLETED)
+    .sort((a, b) => {
+      const aDate = new Date(a.createdAt).getTime();
+      const bDate = new Date(b.createdAt).getTime();
+      return bDate - aDate;
+    })
+    .slice(0, 5);
+
+  const categoryBadgeStyles: Record<string, string> = {
+    main_story: 'bg-cyan-900 text-cyan-300 border border-cyan-600',
+    important: 'bg-purple-900 text-purple-300 border border-purple-600',
+    side_jobs: 'bg-green-900 text-green-300 border border-green-600'
+  };
   
   const handleBriefcaseClick = () => {
     setIsChatbotOpen(true);
@@ -160,60 +189,75 @@ export default function DashboardContent() {
           </Link>
         </div>
         
-        {/* Recent Activity */}
+        {/* Recent Quest Activity */}
         <div className="mb-8 bg-gray-900 bg-opacity-80 shadow-lg relative border border-purple-500">
-          {/* Top line accent */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-purple-600"></div>
-          
-          <div className="absolute top-0 right-0 w-8 h-8"></div>
-          
           <div className="p-4 sm:p-6">
             <div className="flex items-center mb-4">
               <div className="h-5 w-1 bg-purple-500 mr-2"></div>
-              <h2 className="text-lg sm:text-xl font-medium text-white">RECENT_ACTIVITY</h2>
-              <div className="ml-auto text-xs text-cyan-400 border border-cyan-700 px-2 py-1 cursor-pointer hover:bg-gray-800">
-                VIEW_ALL
-              </div>
+              <h2 className="text-lg sm:text-xl font-medium text-white tracking-wide">RECENT_QUEST_ACTIVITY</h2>
+              <Link href="/dashboard/quests" className="ml-auto text-xs text-purple-300 border border-purple-700 px-2 py-1 cursor-pointer hover:bg-gray-800">VIEW_ALL</Link>
             </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between bg-gray-800 bg-opacity-60 p-3 sm:p-4 border-l-2 border-red-500 relative overflow-hidden group">
-                <div className="absolute bottom-0 right-0 w-4 h-4 bg-gray-900 clip-corner-rotated-inverse"></div>
-                
-                <div>
-                  <p className="font-medium text-white flex items-center">
-                    <span className="inline-block w-2 h-2 bg-red-500 mr-2"></span>
-                    Coffee Shop
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-400 ml-4">Today</p>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-red-400">-$4.50</span>
+            <div className="space-y-8">
+              {/* Recently Created */}
+              <div className="w-full">
+                <h3 className="text-sm font-semibold text-cyan-300 flex items-center mb-3 tracking-wide">
+                  <PlusCircle size={14} className="mr-2 text-cyan-400" /> NEWLY_CREATED
+                </h3>
+                {recentlyCreatedQuests.length === 0 ? (
+                  <div className="text-xs text-gray-400 bg-gray-800 bg-opacity-60 p-3 border-l-2 border-cyan-600">No recent quests created.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {recentlyCreatedQuests.map(q => {
+                      const badgeClass = categoryBadgeStyles[q.category] || 'bg-gray-800 text-gray-300 border border-gray-600';
+                      const createdDate = new Date(q.createdAt);
+                      const dateLabel = createdDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                      return (
+                        <div key={q.id} className="bg-gray-800 bg-opacity-60 p-3 border-l-2 border-cyan-500 relative overflow-hidden group hover:bg-gray-750/60 transition-colors">
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-900 clip-corner-rotated-inverse"></div>
+                          <p className="font-medium text-white text-xs flex items-center mb-1">
+                            {q.title}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <span className={`text-[9px] px-2 py-0.5 rounded ${badgeClass}`}>{q.category.toUpperCase()}</span>
+                            <span className="text-[9px] text-gray-400">{dateLabel}</span>
+                            <span className="text-[9px] text-cyan-300">GOAL: {q.goal}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              
-              <div className="flex items-center justify-between bg-gray-800 bg-opacity-60 p-3 sm:p-4 border-l-2 border-red-500 relative overflow-hidden group">
-                <div className="absolute bottom-0 right-0 w-4 h-4 bg-gray-900 clip-corner-rotated-inverse"></div>
-                
-                <div>
-                  <p className="font-medium text-white flex items-center">
-                    <span className="inline-block w-2 h-2 bg-red-500 mr-2"></span>
-                    Grocery Store
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-400 ml-4">Yesterday</p>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-red-400">-$32.75</span>
-              </div>
-              
-              <div className="flex items-center justify-between bg-gray-800 bg-opacity-60 p-3 sm:p-4 border-l-2 border-green-500 relative overflow-hidden group">
-                <div className="absolute bottom-0 right-0 w-4 h-4 bg-gray-900 clip-corner-rotated-inverse"></div>
-                
-                <div>
-                  <p className="font-medium text-white flex items-center">
-                    <span className="inline-block w-2 h-2 bg-green-500 mr-2"></span>
-                    Salary
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-400 ml-4">April 15, 2025</p>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-green-400">+$1,200.00</span>
+              {/* Recently Completed */}
+              <div className="w-full">
+                <h3 className="text-sm font-semibold text-purple-300 flex items-center mb-3 tracking-wide">
+                  <CheckCircle2 size={14} className="mr-2 text-purple-400" /> RECENTLY_COMPLETED
+                </h3>
+                {completedQuests.length === 0 ? (
+                  <div className="text-xs text-gray-400 bg-gray-800 bg-opacity-60 p-3 border-l-2 border-purple-600">No quests completed yet.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {completedQuests.map(q => {
+                      const badgeClass = categoryBadgeStyles[q.category] || 'bg-gray-800 text-gray-300 border border-gray-600';
+                      const completedDate = q.completedAt ? new Date(q.completedAt) : new Date(q.updatedAt);
+                      const dateLabel = completedDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                      return (
+                        <div key={q.id} className="bg-gray-800 bg-opacity-60 p-3 border-l-2 border-purple-500 relative overflow-hidden group hover:bg-gray-750/60 transition-colors">
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-900 clip-corner-rotated-inverse"></div>
+                          <p className="font-medium text-white text-xs flex items-center mb-1">
+                            {q.title}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            <span className={`text-[9px] px-2 py-0.5 rounded ${badgeClass}`}>{q.category.toUpperCase()}</span>
+                            <span className="text-[9px] text-gray-400">{dateLabel}</span>
+                            <span className="text-[9px] text-purple-300">+{q.expReward} EXP</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
