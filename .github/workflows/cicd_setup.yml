@@ -24,6 +24,11 @@ jobs:
     - name: Install dependencies
       working-directory: ./expence_app
       run: npm ci
+
+    - name: Run unit and integration tests
+      working-directory: ./expence_app
+      run: npm run test
+      continue-on-error: true
     
     - name: Build application
       working-directory: ./expence_app
