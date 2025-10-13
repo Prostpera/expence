@@ -144,19 +144,19 @@ export default function DashboardContent() {
           </Link>
           
           {/* LEARNING_QUEST card */}
-          <Link href="/dashboard/quests?category=learning" className="block">
+          <Link href="/dashboard/learning-quest" className="block">
             <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-green-500 hover:bg-opacity-90 transition-all duration-300">
               {/* Rotated corner */}
               <div className="absolute top-0 right-0 w-8 h-8 bg-green-900 clip-corner-rotated"></div>
               <div className="absolute bottom-0 left-0 w-5 h-1 bg-green-500 group-hover:w-full transition-all duration-300"></div>
-                        
+
               <div className="p-6">
                 <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
                   <BarChart3 size={18} className="mr-2 text-green-400" />
                   <span>LEARNING_QUEST</span>
                 </h2>
                 <p className="mt-2 text-3xl font-bold text-green-400">
-                  {sideQuests.length}
+                  3
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
                   <AlertTriangle size={10} className="mr-1 text-green-500" />
