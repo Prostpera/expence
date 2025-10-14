@@ -1,16 +1,19 @@
+// jest.setup.js
 import '@testing-library/jest-dom';
 
+// TextEncoder/TextDecoder for Node environment
 const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+// ReadableStream polyfill
 if (typeof global.ReadableStream === 'undefined') {
   global.ReadableStream = class ReadableStream {
     constructor() {}
   };
 }
 
-// Mock Next.js router
+// Mock Next.js router (Pages Router)
 jest.mock('next/router', () => ({
   useRouter() {
     return {
@@ -66,6 +69,7 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render') ||
        args[0].includes('Not implemented: HTMLFormElement.prototype.submit') ||
+       args[0].includes('Not implemented: navigation') ||
        args[0].includes('Warning: useLayoutEffect does nothing on the server'))
     ) {
       return;
@@ -126,23 +130,6 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
 };
 
-// Mock window.location for redirect tests
-delete window.location;
-window.location = {
-  href: 'http://localhost:3000',
-  origin: 'http://localhost:3000',
-  protocol: 'http:',
-  host: 'localhost:3000',
-  hostname: 'localhost',
-  port: '3000',
-  pathname: '/',
-  search: '',
-  hash: '',
-  reload: jest.fn(),
-  replace: jest.fn(),
-  assign: jest.fn(),
-};
-
 // Custom matchers for authentication tests
 expect.extend({
   toBeValidEmail(received) {
@@ -197,6 +184,7 @@ expect.extend({
   }
 });
 
+// Test environment info
 console.log('\nJest Test Environment Setup Complete');
 console.log('==========================================');
 console.log(`Site URL: ${process.env.NEXT_PUBLIC_SITE_URL}`);
@@ -206,7 +194,8 @@ console.log(`Anthropic API: ${process.env.ANTHROPIC_API_KEY ? 'Configured' : 'No
 console.log(`Test Timeout: 15000ms`);
 console.log('==========================================\n');
 
-if (process.argv.some(arg => arg.includes('auth.real.integration'))) {
+// Show warning if running integration tests without credentials
+if (process.argv.some(arg => arg.includes('auth.integration'))) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.warn('WARNING: Running integration tests without Supabase credentials!');
     console.warn('Tests will be skipped. Add credentials to .env.local to run them.\n');
