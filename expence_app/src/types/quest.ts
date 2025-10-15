@@ -1,3 +1,11 @@
+export interface SubQuest {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  progress: number;
+  goal: number;
+}
 export interface Quest {
   id: string;
   title: string;
@@ -17,6 +25,7 @@ export interface Quest {
   completedAt?: Date;
   isAIGenerated: boolean;
   userContext?: UserContext;
+  subquests?: SubQuest[];
 }
 
 export enum QuestCategory {
