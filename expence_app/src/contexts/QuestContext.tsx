@@ -122,20 +122,18 @@ export const QuestProvider: React.FC<QuestProviderProps> = ({ children, userCont
 
   const updateQuest = async (questId: string, updates: Partial<Quest>) => {
     if (!user) return;
-    
     try {
-      if (updates.progress !== undefined) {
-        // Update progress via PATCH endpoint
-        const response = await fetch(`/api/quests/${questId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ progress: updates.progress })
-        });
-        
-        if (response.ok) {
-          await loadQuestsFromDatabase();
-          await loadUserStats();
-        }
+      // Use PUT to update all fields
+      const response = await fetch(`/api/quests/${questId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (response.ok) {
+        await loadQuestsFromDatabase();
+        await loadUserStats();
+      } else {
+        console.error('Failed to update quest fields');
       }
     } catch (error) {
       console.error('Error updating quest:', error);

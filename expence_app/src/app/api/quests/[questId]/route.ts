@@ -79,6 +79,38 @@ export async function PATCH(
   }
 }
 
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ questId: string }> }
+) {
+  try {
+    const supabase = await createServerSupabase();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { questId } = await context.params;
+    const updates = await request.json();
+
+    // Call new service method to update quest fields
+    const updatedQuest = await userQuestService.updateQuestFields(questId, user.id, updates);
+
+    if (!updatedQuest) {
+      return NextResponse.json({ error: 'Failed to update quest' }, { status: 500 });
+    }
+
+    return NextResponse.json({ quest: updatedQuest });
+  } catch (error) {
+    console.error('Error updating quest:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ questId: string }> }

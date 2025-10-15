@@ -391,6 +391,58 @@ export class UserQuestService {
     }
   }
 
+  async updateQuestFields(questId: string, userId: string, updates: any): Promise<Quest | null> {
+    try {
+      // Fetch current quest
+      const { data: currentQuest, error: fetchError } = await supabaseAdmin
+        .from('quests')
+        .select('*')
+        .eq('id', questId)
+        .eq('user_id', userId)
+        .single();
+
+      if (fetchError || !currentQuest) {
+        console.error('Quest not found:', fetchError);
+        return null;
+      }
+
+      // Merge updates into quest_data
+      const questData = currentQuest.quest_data || {};
+      const newQuestData = {
+        ...questData,
+        ...updates,
+      };
+
+      // Also update top-level fields if present
+      const updateFields: any = {
+        quest_data: newQuestData,
+        updated_at: new Date().toISOString(),
+      };
+      if (updates.title) updateFields.title = updates.title;
+      if (updates.description) updateFields.description = updates.description;
+      if (updates.category) updateFields.category = updates.category;
+      if (updates.difficulty) updateFields.difficulty = updates.difficulty;
+
+      const { data: updatedQuest, error: updateError } = await supabaseAdmin
+        .from('quests')
+        .update(updateFields)
+        .eq('id', questId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Error updating quest fields:', updateError);
+        return null;
+      }
+
+      return this.mapDatabaseQuestToQuest(updatedQuest);
+    } catch (error) {
+      console.error('Error in updateQuestFields:', error);
+      return null;
+    }
+  }
+
   private mapDatabaseQuestToQuest(dbQuest: any): Quest {
     const questData = dbQuest.quest_data || {};
     
