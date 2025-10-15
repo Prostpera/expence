@@ -17,8 +17,11 @@ import {
   AlertCircle,
   Play,
   Pause,
-  X
+  X,
+  Pencil
 } from 'lucide-react';
+import { useQuests } from '../contexts/QuestContext';
+import Modal from './Modal'; // If you have a Modal component, otherwise use a simple div
 
 interface QuestCardProps {
   quest: Quest;
@@ -27,6 +30,7 @@ interface QuestCardProps {
   onPause?: (questId: string) => void;
   onDelete?: (questId: string) => void;
   onViewDetails?: (questId: string) => void;
+  onSubQuestToggle?: (questId: string, subQuestId: string) => void;
 }
 
 const QuestCard: React.FC<QuestCardProps> = ({
@@ -35,7 +39,8 @@ const QuestCard: React.FC<QuestCardProps> = ({
   onComplete,
   onPause,
   onDelete,
-  onViewDetails
+  onViewDetails,
+  onSubQuestToggle
 }) => {
   const getCategoryColor = (category: QuestCategory): string => {
     switch (category) {
@@ -97,15 +102,36 @@ const QuestCard: React.FC<QuestCardProps> = ({
   const canComplete = quest.status === QuestStatus.IN_PROGRESS && quest.progress >= quest.goal;
   const canPause = quest.status === QuestStatus.IN_PROGRESS;
 
+  const { updateQuest } = useQuests();
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [editData, setEditData] = React.useState({
+    title: quest.title,
+    description: quest.description,
+    goal: quest.goal,
+    subquests: quest.subquests ? [...quest.subquests] : []
+  });
+
+  const handleEditSave = () => {
+    updateQuest(quest.id, {
+      title: editData.title,
+      description: editData.description,
+      goal: editData.goal,
+      subquests: editData.subquests
+    });
+    setIsEditOpen(false);
+  };
+
+  // Add this helper for the colored dots
+  const EditDots = () => (
+    <span className="inline-flex items-center gap-1">
+      <span className="w-2 h-2 rounded-full bg-yellow-400 opacity-80" />
+      <span className="w-2 h-2 rounded-full bg-cyan-400 opacity-80" />
+      <span className="w-2 h-2 rounded-full bg-purple-400 opacity-80" />
+    </span>
+  );
+
   return (
-    <div className={`
-      group rounded-lg bg-gray-900/50 p-6 shadow-lg border transition-all duration-300 
-      hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] 
-      ${categoryColor === 'purple' ? 'border-purple-400/30 hover:border-purple-400' : ''}
-      ${categoryColor === 'cyan' ? 'border-cyan-400/30 hover:border-cyan-400' : ''}
-      ${categoryColor === 'yellow' ? 'border-yellow-400/30 hover:border-yellow-400' : ''}
-      ${isCompleted ? 'opacity-75' : ''}
-    `}>
+    <div className="relative bg-gray-900 border border-yellow-500 rounded-lg p-6 shadow-lg mb-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -135,6 +161,25 @@ const QuestCard: React.FC<QuestCardProps> = ({
         </div>
         <div className="flex items-center gap-1">
           {getDifficultyIcon(quest.difficulty)}
+        </div>
+      </div>
+
+      {/* Edit Button with Colored Dots */}
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          {/* ...existing title and category... */}
+        </div>
+        <div className="flex items-center gap-2">
+          {/* ...existing rating stars... */}
+          {/* Edit button with colored dots */}
+          <button
+            className="px-2 py-1 bg-gray-800 bg-opacity-60 rounded flex items-center gap-1 hover:bg-gray-700 transition-colors text-xs"
+            title="Edit Quest"
+            onClick={() => setIsEditOpen(true)}
+          >
+            <EditDots />
+            <span className="ml-1">Edit</span>
+          </button>
         </div>
       </div>
 
@@ -260,6 +305,74 @@ const QuestCard: React.FC<QuestCardProps> = ({
             </span>
           )}
         </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditOpen && (
+        <Modal onClose={() => setIsEditOpen(false)}>
+          <div className="p-4 bg-gray-900 rounded">
+            <h2 className="text-lg font-bold mb-2">Edit Quest</h2>
+            <label className="block text-sm text-gray-300 mb-1">Title</label>
+            <input
+              className="w-full mb-2 p-2 bg-gray-800 border border-gray-700 rounded"
+              value={editData.title}
+              onChange={e => setEditData({ ...editData, title: e.target.value })}
+              placeholder="Title"
+            />
+            <label className="block text-sm text-gray-300 mb-1">Description</label>
+            <textarea
+              className="w-full mb-2 p-2 bg-gray-800 border border-gray-700 rounded"
+              value={editData.description}
+              onChange={e => setEditData({ ...editData, description: e.target.value })}
+              placeholder="Description"
+            />
+            <label className="block text-sm text-gray-300 mb-1">Goal</label>
+            <input
+              className="w-full mb-2 p-2 bg-gray-800 border border-gray-700 rounded"
+              type="number"
+              value={editData.goal}
+              onChange={e => setEditData({ ...editData, goal: Number(e.target.value) })}
+              placeholder="Goal"
+            />
+            {/* Subquest editing (simple) */}
+            {editData.subquests && editData.subquests.length > 0 && (
+              <div className="mb-2">
+                <h3 className="text-md font-semibold mb-1">Subquests</h3>
+                {editData.subquests.map((sq, idx) => (
+                  <div key={sq.id} className="flex gap-2 mb-1">
+                    <label className="block text-xs text-gray-400">Subquest Title</label>
+                    <input
+                      className="flex-1 p-1 bg-gray-800 border border-gray-700 rounded"
+                      value={sq.title}
+                      onChange={e => {
+                        const newSubquests = [...editData.subquests];
+                        newSubquests[idx].title = e.target.value;
+                        setEditData({ ...editData, subquests: newSubquests });
+                      }}
+                    />
+                    <button
+                      className="text-red-400"
+                      onClick={() => {
+                        const newSubquests = editData.subquests.filter((_, i) => i !== idx);
+                        setEditData({ ...editData, subquests: newSubquests });
+                      }}
+                    >Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 bg-gray-700 text-white rounded"
+                onClick={() => setIsEditOpen(false)}
+              >Cancel</button>
+              <button
+                className="px-4 py-2 bg-cyan-600 text-white rounded"
+                onClick={handleEditSave}
+              >Save</button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
