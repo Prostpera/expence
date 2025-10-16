@@ -175,9 +175,6 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
           <div className="flex items-center gap-3">
             <Sparkles className="text-cyan-400" size={24} />
             <h2 className="text-xl font-bold text-white">AI Quest Generator</h2>
-            <span className="px-2 py-1 text-xs bg-pink-900/50 text-pink-300 rounded">
-              BETA
-            </span>
           </div>
           <button
             onClick={onClose}
@@ -285,7 +282,7 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-cyan-500"
                   >
                     <option value="">Any Category</option>
-                    <option value={QuestCategory.MAIN_STORY}>Main Story</option>
+                    <option value={QuestCategory.MAIN_QUESTS}>Main Quests</option>
                     <option value={QuestCategory.IMPORTANT}>Important</option>
                     <option value={QuestCategory.SIDE_JOBS}>Side Jobs</option>
                   </select>
