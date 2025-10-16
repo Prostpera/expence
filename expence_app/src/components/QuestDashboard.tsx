@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Quest,
-  QuestCategory,
-  QuestStatus,
-  UserContext
+import Link from 'next/link';
+import { 
+  Quest, 
+  QuestCategory, 
+  QuestStatus, 
+  UserContext 
 } from '../types/quest';
 import { useQuests } from '../contexts/QuestContext';
 import QuestCard from './QuestCard';
@@ -18,8 +19,7 @@ import {
   Briefcase,
   Sparkles,
   RefreshCw,
-  Lock,
-  ArrowRight
+  ArrowLeft
 } from 'lucide-react';
 import { useUserContext } from './QuestWrapper';
 
@@ -222,19 +222,27 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
-      {/* HEADER */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-        <div className="flex items-center">
-          <div className="h-6 w-1 bg-rose-500 mr-3" />
-          <h1 className="text-2xl md:text-3xl font-bold text-white">
-            Job<span className="text-rose-400"> List</span>
-          </h1>
-          <div className="ml-4 text-sm text-gray-400">
-            {quests.length} active quest{quests.length !== 1 ? 's' : ''}
-          </div>
+      {/* Header */}
+      <div className="flex flex-col gap-4 mb-8">
+        {/* Back Button Row */}
+        <div>
+          <Link href="/dashboard" className="inline-flex items-center text-gray-400 hover:text-cyan-400 transition-colors group text-sm">
+            <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="tracking-wide">BACK</span>
+          </Link>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Title & Actions Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center">
+            <div className="h-6 w-1 bg-cyan-500 mr-3"></div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              QUEST_<span className="text-cyan-400">SYSTEM</span>
+            </h1>
+            <div className="ml-4 text-sm text-gray-400">
+              {quests.length} active quest{quests.length !== 1 ? 's' : ''}
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={onGenerateAIQuest}
             disabled={loading}
@@ -253,6 +261,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
               Create Custom
             </button>
           )}
+          </div>
         </div>
       </div>
 

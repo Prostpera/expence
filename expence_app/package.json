@@ -12,7 +12,9 @@
     "test:coverage": "jest --coverage",
     "test:ai-quest": "jest **tests**/ai-quest-generation",
     "test:integration": "jest --testPathPattern=integration",
-    "test:api": "jest **tests**/ai-quest-generation/aiQuestGenerator.integration.test.ts"
+    "test:api": "jest **tests**/ai-quest-generation/aiQuestGenerator.integration.test.ts",
+    "test:chatbot": "jest **tests**/chatbot/ChatbotModal.test.tsx",
+    "test:auth": "jest **tests**/auth/auth.integration.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.62.0",
@@ -50,6 +52,7 @@
     "@types/node": "20.17.47",
     "@types/react": "19.1.4",
     "@types/react-dom": "^19",
+    "@types/testing-library__jest-dom": "^5.14.9",
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.1.2",
     "eslint": "^8.54.0",
