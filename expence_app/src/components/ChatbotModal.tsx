@@ -19,7 +19,7 @@ const ChatbotModal = ({ isOpen, onClose }: ChatbotModalProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm Sage, your EXPence Assistant. How can I help with your financial quests today?",
+      text: "Hello! I'm Case, your EXPence Assistant. How can I help with your financial quests today?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -140,7 +140,7 @@ const ChatbotModal = ({ isOpen, onClose }: ChatbotModalProps) => {
                     <div className="mr-2 self-start">
                       <Image
                         src="/just_briefcase.png"
-                        alt="Sage"
+                        alt="Case"
                         width={24}
                         height={24}
                         className="min-w-[24px]"
@@ -167,14 +167,14 @@ const ChatbotModal = ({ isOpen, onClose }: ChatbotModalProps) => {
                   <div className="mr-2 self-start">
                     <Image
                       src="/just_briefcase.png"
-                      alt="Sage"
+                      alt="Case"
                       width={24}
                       height={24}
                       className="min-w-[24px]"
                     />
                   </div>
                   <div className="max-w-[75%] p-3 rounded-lg bg-gray-800 border-l-2 border-cyan-500 flex items-center">
-                    <span className="text-sm text-gray-400 animate-pulse">Sage is typing...</span>
+                    <span className="text-sm text-gray-400 animate-pulse">Case is typing...</span>
                   </div>
                 </div>
               )}
