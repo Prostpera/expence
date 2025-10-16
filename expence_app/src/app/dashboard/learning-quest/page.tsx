@@ -67,10 +67,14 @@ export default function LearningQuestPage() {
       setDisplayedText('');
 
       let index = 0;
+      let timeoutId: NodeJS.Timeout | null = null;
+      let isCancelled = false;
       const typingSpeed = 20; // milliseconds per character
       const punctuationPause = 200; // pause after . ! ?
 
       const typeNextChar = () => {
+        if (isCancelled) return;
+
         if (index < fullText.length) {
           setDisplayedText(fullText.slice(0, index + 1));
           const currentChar = fullText[index];
@@ -78,9 +82,9 @@ export default function LearningQuestPage() {
 
           // Check if current character is punctuation that should pause
           if (currentChar === '.' || currentChar === '!' || currentChar === '?') {
-            setTimeout(typeNextChar, punctuationPause);
+            timeoutId = setTimeout(typeNextChar, punctuationPause);
           } else {
-            setTimeout(typeNextChar, typingSpeed);
+            timeoutId = setTimeout(typeNextChar, typingSpeed);
           }
         } else {
           setIsTyping(false);
@@ -90,6 +94,10 @@ export default function LearningQuestPage() {
       typeNextChar();
 
       return () => {
+        isCancelled = true;
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
         setIsTyping(false);
       };
     }
