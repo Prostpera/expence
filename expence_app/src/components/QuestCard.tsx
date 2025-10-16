@@ -39,7 +39,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
 }) => {
   const getCategoryColor = (category: QuestCategory): string => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return 'purple';
+      case QuestCategory.MAIN_QUESTS: return 'purple';
       case QuestCategory.IMPORTANT: return 'cyan';
       case QuestCategory.SIDE_JOBS: return 'yellow';
       default: return 'gray';
@@ -72,7 +72,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
 
   const getCategoryLabel = (category: QuestCategory): string => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return 'Main Story';
+      case QuestCategory.MAIN_QUESTS: return 'Main Story';
       case QuestCategory.IMPORTANT: return 'Important';
       case QuestCategory.SIDE_JOBS: return 'Side Job';
       default: return 'Unknown';

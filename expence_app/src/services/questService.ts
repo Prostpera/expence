@@ -94,9 +94,9 @@ export class QuestService {
     const quests: Quest[] = [];
 
     if (userContext.currentLevel <= 3) {
-      const mainStoryTemplates = availableTemplates.filter(t => t.category === QuestCategory.MAIN_STORY);
-      if (mainStoryTemplates.length > 0) {
-        quests.push(this.generateQuestFromTemplate(mainStoryTemplates[0], userContext));
+      const mainQuestTemplates = availableTemplates.filter(t => t.category === QuestCategory.MAIN_QUESTS);
+      if (mainQuestTemplates.length > 0) {
+        quests.push(this.generateQuestFromTemplate(mainQuestTemplates[0], userContext));
       }
     }
 
@@ -176,7 +176,7 @@ export class QuestService {
       completed: this.quests.filter(q => q.status === QuestStatus.COMPLETED).length,
       inProgress: this.quests.filter(q => q.status === QuestStatus.IN_PROGRESS).length,
       byCategory: {
-        [QuestCategory.MAIN_STORY]: 0,
+        [QuestCategory.MAIN_QUESTS]: 0,
         [QuestCategory.IMPORTANT]: 0,
         [QuestCategory.SIDE_JOBS]: 0
       },
@@ -227,7 +227,7 @@ export class QuestService {
     if (variables?.points) return Number(variables.points);
     
     switch (template.category) {
-      case QuestCategory.MAIN_STORY: return 1;
+      case QuestCategory.MAIN_QUESTS: return 1;
       case QuestCategory.IMPORTANT: return 1;
       case QuestCategory.SIDE_JOBS: return template.estimatedDays;
       default: return 1;
