@@ -118,6 +118,15 @@ jobs:
           NODE_ENV: test
           CI: true
       
+      - name: Run Reccent Quest Activity tests
+        working-directory: ./expence_app
+        run: npm test __tests__/reccent_activity/recentQuestActivity.test.ts
+        continue-on-error: true
+        env:
+          NODE_ENV: test
+          CI: true
+
+          
       - name: Run auth tests
         working-directory: ./expence_app
         run: npm run test:auth
