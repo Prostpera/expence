@@ -174,7 +174,7 @@ const ChatbotModal = ({ isOpen, onClose }: ChatbotModalProps) => {
                     />
                   </div>
                   <div className="max-w-[75%] p-3 rounded-lg bg-gray-800 border-l-2 border-cyan-500 flex items-center">
-                    <span className="text-sm text-gray-400 animate-pulse">Case is typing...</span>
+                      <span className="text-sm text-gray-400 animate-pulse">Sage is typing...</span>
                   </div>
                 </div>
               )}
