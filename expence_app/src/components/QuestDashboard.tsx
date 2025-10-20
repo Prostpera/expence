@@ -10,16 +10,18 @@ import {
 } from '../types/quest';
 import { useQuests } from '../contexts/QuestContext';
 import QuestCard from './QuestCard';
-import { 
-  Plus, 
-  Filter, 
-  Search, 
-  BookOpen, 
-  AlertTriangle, 
+import {
+  Plus,
+  Filter,
+  Search,
+  BookOpen,
+  AlertTriangle,
   Briefcase,
   Sparkles,
   RefreshCw,
-  ArrowLeft
+  ArrowLeft,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { useUserContext } from './QuestWrapper';
 
@@ -28,77 +30,46 @@ interface QuestDashboardProps {
   onGenerateAIQuest?: () => void;
 }
 
+interface QuestProgress {
+  current: number;
+  target: number;
+  label: string;
+  pct: number;
+}
+
 const QuestDashboard: React.FC<QuestDashboardProps> = ({
   onCreateCustomQuest,
   onGenerateAIQuest
 }) => {
   const userContext = useUserContext();
-  const { 
-    quests, 
-    loading, 
-    startQuest, 
-    completeQuest, 
-    pauseQuest, 
+  const level = userContext?.currentLevel ?? 1;
+
+  const {
+    quests,
+    loading,
+    startQuest,
+    completeQuest,
+    pauseQuest,
     removeQuest,
-    generateInitialQuests 
+    generateInitialQuests
   } = useQuests();
-  
+
+  // ---------- FILTER STATE ----------
   const [filteredQuests, setFilteredQuests] = useState<Quest[]>([]);
   const [activeCategory, setActiveCategory] = useState<QuestCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    console.log('QuestDashboard - quests updated:', quests);
-    console.log('QuestDashboard - quests length:', quests.length);
-    filterQuests();
-  }, [quests, activeCategory, searchTerm]); 
+  // ---------- SELECTION (RIGHT-PANE) ----------
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = filteredQuests.find(q => q.id === selectedId) ?? filteredQuests[0] ?? null;
 
-  const generateMoreQuests = () => {
-    generateInitialQuests(userContext);
-  };
-
-  const filterQuests = () => {
-    let filtered = quests;
-
-    if (activeCategory !== 'all') {
-      filtered = filtered.filter(quest => quest.category === activeCategory);
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(quest =>
-        quest.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quest.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quest.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    setFilteredQuests(filtered);
-  };
-
-  const handleStartQuest = (questId: string) => {
-    startQuest(questId);
-  };
-
-  const handleCompleteQuest = (questId: string) => {
-    completeQuest(questId);
-  };
-
-  const handlePauseQuest = (questId: string) => {
-    pauseQuest(questId);
-  };
-
-  const handleDeleteQuest = (questId: string) => {
-    if (window.confirm('Are you sure you want to delete this quest?')) {
-        removeQuest(questId);
-    }
-  };
-
+  // ---------- HELPERS ----------
   const getCategoryIcon = (category: QuestCategory) => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return <BookOpen size={18} />;
-      case QuestCategory.IMPORTANT: return <AlertTriangle size={18} />;
-      case QuestCategory.SIDE_JOBS: return <Briefcase size={18} />;
-      default: return <BookOpen size={18} />;
+      case QuestCategory.MAIN_STORY: return <BookOpen size={16} />;
+      case QuestCategory.IMPORTANT:  return <AlertTriangle size={16} />;
+      case QuestCategory.SIDE_JOBS:  return <Briefcase size={16} />;
+      default:                       return <BookOpen size={16} />;
     }
   };
 
@@ -107,8 +78,163 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     return quests.filter(quest => quest.category === category).length;
   };
 
-  const getQuestsByCategory = (category: QuestCategory) => {
-    return filteredQuests.filter(quest => quest.category === category);
+  const normalizeProgress = (q: Quest): QuestProgress => {
+    const current = q.progress ?? 0;
+    const target = q.goal ?? 1;
+
+    const pct = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round((current / Math.max(1, target)) * 100)
+      )
+    );
+
+    return { 
+      current, 
+      target, 
+      label: 'steps',
+      pct 
+    };
+  };
+
+  // No level locks for basic quests
+  const requiredLevel = (q: Quest) => {
+    if (q.category === QuestCategory.MAIN_STORY) return 1;
+    if (q.category === QuestCategory.IMPORTANT) return 1;
+    if (q.category === QuestCategory.SIDE_JOBS) return 1;
+    return 1;
+  };
+  
+  const isLocked = (q: Quest) => level < requiredLevel(q);
+
+  const generateMoreQuests = () => generateInitialQuests(userContext);
+
+  const fitsCategory = (q: Quest) =>
+    activeCategory === 'all' ? true : q.category === activeCategory;
+
+  const fitsSearch = (q: Quest) => {
+    if (!searchTerm) return true;
+    const hay = (q.title + ' ' + (q.description ?? '') + ' ' + (q.tags ?? []).join(' '))
+      .toLowerCase();
+    return hay.includes(searchTerm.toLowerCase());
+  };
+
+  const filterAll = () => {
+    const filtered = quests.filter(q => fitsCategory(q) && fitsSearch(q));
+    setFilteredQuests(filtered);
+  };
+
+  useEffect(() => {
+    filterAll();
+    setSelectedId(prev => {
+      if (!prev) return filteredQuests[0]?.id ?? null;
+      return filteredQuests.some(q => q.id === prev) ? prev : filteredQuests[0]?.id ?? null;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quests, activeCategory, searchTerm]);
+
+  // ---------- LIST ITEM ----------
+  const ListItem: React.FC<{ q: Quest; active: boolean; onClick: () => void }> = ({ q, active, onClick }) => {
+    const locked = isLocked(q);
+    return (
+      <button
+        onClick={onClick}
+        className={`group relative flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition
+          ${active
+            ? 'border-rose-500/60 bg-rose-500/10 shadow-[inset_0_0_40px_-20px_rgba(244,63,94,.8)]'
+            : 'border-rose-900/30 bg-[#0c1117] hover:border-rose-700/50 hover:bg-[#111821]'}
+          ${locked ? 'opacity-70' : ''}`}
+      >
+        <div className="mt-0.5">{locked ? <Lock className="h-4 w-4 text-rose-300" /> : getCategoryIcon(q.category)}</div>
+
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-semibold tracking-wide text-slate-100">
+            {q.title}
+          </div>
+          <div className="mt-0.5 flex items-center gap-2 text-[10px] tracking-widest text-rose-300">
+            {q.category === QuestCategory.MAIN_STORY ? 'MAIN STORY' : q.category === QuestCategory.SIDE_JOBS ? 'SIDE JOB' : 'IMPORTANT'}
+            {locked && (
+              <span className="ml-1 rounded-sm border border-rose-600/50 px-1.5 py-0.5 text-[10px] text-rose-300">
+                LOCKED
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* accent strip */}
+        {active && <div className="absolute inset-y-0 right-0 w-1 rounded-r-md bg-gradient-to-b from-rose-500 to-pink-400" />}
+      </button>
+    );
+  };
+
+  // ---------- RIGHT PANEL ----------
+  const RightPanel: React.FC<{ q: Quest | null }> = ({ q }) => {
+    if (!q) {
+      return (
+        <section className="relative overflow-hidden rounded-xl border border-rose-700/50 bg-[#0f141a]/80 p-6 text-slate-300/90 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
+          <div className="opacity-70">Select a quest from the left to see details.</div>
+        </section>
+      );
+    }
+
+    const p = normalizeProgress(q);
+    const locked = isLocked(q);
+
+    return (
+      <section className="relative overflow-hidden rounded-xl border border-rose-700/50 bg-[#0f141a]/80 p-6 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
+        <h1 className="mb-1 text-xl font-bold tracking-wide text-rose-300">{q.title}</h1>
+
+        <div className="inline-flex items-center gap-2 rounded-md border border-rose-700/50 bg-rose-500/10 px-2 py-1 text-[11px] tracking-widest text-rose-200">
+          {locked ? (
+            <>
+              <Lock className="h-3.5 w-3.5" />
+              <span>LOCKED — REQUIRES LEVEL {requiredLevel(q)} (YOU: {level})</span>
+            </>
+          ) : (
+            <>
+              <ArrowRight className="h-3.5 w-3.5" />
+              <span>OBJECTIVE AVAILABLE</span>
+            </>
+          )}
+        </div>
+
+        <p className="mt-4 max-w-3xl leading-relaxed text-slate-300/90">
+          {q.description ?? 'No description provided.'}
+        </p>
+
+        {/* Progress */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between text-sm text-slate-300/90">
+            <span>Progress</span>
+            <span>{p.current} / {p.target} {p.label}</span>
+          </div>
+          <div className="mt-2 h-2 w-full rounded bg-slate-700/50">
+            <div className="h-full rounded bg-rose-400/80" style={{ width: `${p.pct}%` }} />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-6 flex items-center gap-3">
+          <button
+            onClick={() => startQuest(q.id)}
+            disabled={locked || loading}
+            className={`rounded-md px-4 py-2 text-sm font-semibold
+              ${locked ? 'cursor-not-allowed opacity-50 bg-amber-600/50 text-black' : 'bg-amber-600/80 hover:bg-amber-500 text-black'}`}
+          >
+            Start Quest
+          </button>
+          <button
+            onClick={() => completeQuest(q.id)}
+            className="rounded-md border border-slate-500/60 px-3 py-2 text-sm text-slate-200 hover:border-rose-400/60"
+          >
+            Mark Complete
+          </button>
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/40 to-transparent" />
+      </section>
+    );
   };
 
   return (
@@ -142,11 +268,11 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             {loading ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
             Generate AI Quests
           </button>
-          
+
           {onCreateCustomQuest && (
             <button
               onClick={onCreateCustomQuest}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-cyan-900 bg-opacity-50 border border-cyan-500 text-cyan-300 hover:bg-opacity-75 transition-all duration-300"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-rose-900 bg-opacity-50 border border-rose-500 text-rose-300 hover:bg-opacity-75 transition-all duration-300"
             >
               <Plus size={16} />
               Create Custom
@@ -156,129 +282,81 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         </div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      {/* SEARCH + FILTERS */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             placeholder="Search quests..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
+            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-rose-500"
           />
         </div>
-        
+
         <div className="flex gap-2">
-          <button
+          <FilterChip
+            active={activeCategory === 'all'}
             onClick={() => setActiveCategory('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-              activeCategory === 'all'
-                ? 'bg-cyan-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            All ({getCategoryCount('all')})
-          </button>
-          
-          {Object.values(QuestCategory).map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                activeCategory === category
-                  ? 'bg-cyan-600 text-white'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-              }`}
-            >
-              {getCategoryIcon(category)}
-              <span className="hidden sm:inline">
-                {category.replace('_', ' ').split(' ').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')}
-              </span>
-              ({getCategoryCount(category)})
-            </button>
-          ))}
+            label={`All (${getCategoryCount('all')})`}
+          />
+          <FilterChip
+            active={activeCategory === QuestCategory.MAIN_STORY}
+            onClick={() => setActiveCategory(QuestCategory.MAIN_STORY)}
+            icon={<BookOpen size={16} />}
+            label={`Main Story (${getCategoryCount(QuestCategory.MAIN_STORY)})`}
+          />
+          <FilterChip
+            active={activeCategory === QuestCategory.IMPORTANT}
+            onClick={() => setActiveCategory(QuestCategory.IMPORTANT)}
+            icon={<AlertTriangle size={16} />}
+            label={`Important (${getCategoryCount(QuestCategory.IMPORTANT)})`}
+          />
+          <FilterChip
+            active={activeCategory === QuestCategory.SIDE_JOBS}
+            onClick={() => setActiveCategory(QuestCategory.SIDE_JOBS)}
+            icon={<Briefcase size={16} />}
+            label={`Side Jobs (${getCategoryCount(QuestCategory.SIDE_JOBS)})`}
+          />
         </div>
       </div>
 
-      {/* Quest Categories */}
-      {activeCategory === 'all' ? (
-        <div className="space-y-8">
-          {Object.values(QuestCategory).map((category) => {
-            const categoryQuests = getQuestsByCategory(category);
-            if (categoryQuests.length === 0) return null;
-
-            return (
-              <div key={category}>
-                <div className="flex items-center gap-3 mb-4">
-                  {getCategoryIcon(category)}
-                  <h2 className="text-xl font-bold text-white">
-                    {category.replace('_', ' ').split(' ').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')}
-                  </h2>
-                  <span className="text-sm text-gray-400">
-                    ({categoryQuests.length})
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryQuests.map((quest) => (
-                    <QuestCard
-                      key={quest.id}
-                      quest={quest}
-                      onStart={handleStartQuest}
-                      onComplete={handleCompleteQuest}
-                      onPause={handlePauseQuest}
-                      onDelete={handleDeleteQuest}
-                      onViewDetails={(questId) => console.log('View details:', questId)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredQuests.map((quest) => (
-            <QuestCard
-              key={quest.id}
-              quest={quest}
-              onStart={handleStartQuest}
-              onComplete={handleCompleteQuest}
-              onPause={handlePauseQuest}
-              onDelete={handleDeleteQuest}
-              onViewDetails={(questId) => console.log('View details:', questId)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {filteredQuests.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
-            <p className="text-lg">No quests found</p>
-            <p className="text-sm">Try adjusting your search or generate new quests</p>
+      {/* TWO-PANE JOURNAL LAYOUT */}
+      <div className="grid grid-cols-1 md:grid-cols-[360px,1fr] gap-6">
+        {/* LEFT LIST */}
+        <aside className="rounded-xl border border-rose-700/50 bg-[#11161c]/70 p-2 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold tracking-[0.3em] text-rose-300">
+              {activeCategory === 'all' ? 'ALL QUESTS' : String(activeCategory).replace('_', ' ').toUpperCase()}
+            </h2>
+            <div className="h-px flex-1 bg-rose-800/40" />
           </div>
-          <button
-            onClick={onGenerateAIQuest}
-            className="mt-4 flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-cyan-900 bg-opacity-50 border border-cyan-500 text-cyan-300 hover:bg-opacity-75 transition-all duration-300"
-          >
-            <Sparkles size={16} />
-            Generate AI Quests
-          </button>
-        </div>
-      )}
+
+          <div className="space-y-1 overflow-hidden rounded-md">
+            {filteredQuests.map((q) => (
+              <ListItem
+                key={q.id}
+                q={q}
+                active={selected?.id === q.id}
+                onClick={() => setSelectedId(q.id)}
+              />
+            ))}
+
+            {!loading && filteredQuests.length === 0 && (
+              <div className="p-4 text-sm text-slate-400">No quests found.</div>
+            )}
+          </div>
+        </aside>
+
+        {/* RIGHT DETAIL */}
+        <RightPanel q={selected} />
+      </div>
 
       {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
-          <RefreshCw size={48} className="mx-auto mb-4 text-cyan-400 animate-spin" />
+          <RefreshCw size={48} className="mx-auto mb-4 text-rose-400 animate-spin" />
           <p className="text-lg text-gray-300">Loading quests...</p>
           <p className="text-sm text-gray-400">Preparing your financial challenges</p>
         </div>
@@ -286,5 +364,29 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     </div>
   );
 };
+
+// ------- Small UI helpers -------
+function FilterChip({
+  active,
+  onClick,
+  label,
+  icon
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+        active ? 'bg-rose-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+      }`}
+    >
+      {icon} <span>{label}</span>
+    </button>
+  );
+}
 
 export default QuestDashboard;
