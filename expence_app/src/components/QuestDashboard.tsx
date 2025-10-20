@@ -19,7 +19,9 @@ import {
   Briefcase,
   Sparkles,
   RefreshCw,
-  ArrowLeft
+  ArrowLeft,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { useUserContext } from './QuestWrapper';
 
@@ -28,12 +30,19 @@ interface QuestDashboardProps {
   onGenerateAIQuest?: () => void;
 }
 
+interface QuestProgress {
+  current: number;
+  target: number;
+  label: string;
+  pct: number;
+}
+
 const QuestDashboard: React.FC<QuestDashboardProps> = ({
   onCreateCustomQuest,
   onGenerateAIQuest
 }) => {
   const userContext = useUserContext();
-  const level = userContext?.level ?? 1;
+  const level = userContext?.currentLevel ?? 1;
 
   const {
     quests,
@@ -69,26 +78,34 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     return quests.filter(quest => quest.category === category).length;
   };
 
-  const normalizeProgress = (q: Quest) => {
-    // Accept multiple shapes safely
-    const p = q.progress ?? {
-      current: (q as any).progressCurrent ?? (q as any).current ?? 0,
-      target:  (q as any).progressTarget  ?? (q as any).target  ?? 1,
-      label:   (q as any).progressLabel   ?? 'steps',
-    };
+  const normalizeProgress = (q: Quest): QuestProgress => {
+    const current = q.progress ?? 0;
+    const target = q.goal ?? 1;
 
     const pct = Math.max(
       0,
       Math.min(
         100,
-        Math.round((p.current / Math.max(1, p.target)) * 100)
+        Math.round((current / Math.max(1, target)) * 100)
       )
     );
 
-    return { ...p, pct };
+    return { 
+      current, 
+      target, 
+      label: 'steps',
+      pct 
+    };
   };
 
-  const requiredLevel = (q: Quest) => q.requiredLevel ?? 1;
+  // No level locks for basic quests
+  const requiredLevel = (q: Quest) => {
+    if (q.category === QuestCategory.MAIN_STORY) return 1;
+    if (q.category === QuestCategory.IMPORTANT) return 1;
+    if (q.category === QuestCategory.SIDE_JOBS) return 1;
+    return 1;
+  };
+  
   const isLocked = (q: Quest) => level < requiredLevel(q);
 
   const generateMoreQuests = () => generateInitialQuests(userContext);
@@ -177,13 +194,13 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
           ) : (
             <>
               <ArrowRight className="h-3.5 w-3.5" />
-              <span>{(q.objective ?? 'Objective available').toUpperCase()}</span>
+              <span>OBJECTIVE AVAILABLE</span>
             </>
           )}
         </div>
 
         <p className="mt-4 max-w-3xl leading-relaxed text-slate-300/90">
-          {q.description ?? q.summary ?? 'No description provided.'}
+          {q.description ?? 'No description provided.'}
         </p>
 
         {/* Progress */}
