@@ -121,7 +121,7 @@ export default function DashboardContent() {
         
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* STORY_QUEST card */}
-          <Link href="/dashboard/quests?category=story" className="block">
+          <Link href="/dashboard/story-quest" className="block">
             <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-cyan-500 hover:bg-opacity-90 transition-all duration-300">
               {/* Rotated corner */}
               <div className="absolute top-0 right-0 w-8 h-8 bg-cyan-900 clip-corner-rotated"></div>
