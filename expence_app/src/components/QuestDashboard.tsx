@@ -66,10 +66,10 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   // ---------- HELPERS ----------
   const getCategoryIcon = (category: QuestCategory) => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return <BookOpen size={16} />;
-      case QuestCategory.IMPORTANT:  return <AlertTriangle size={16} />;
-      case QuestCategory.SIDE_JOBS:  return <Briefcase size={16} />;
-      default:                       return <BookOpen size={16} />;
+      case QuestCategory.MAIN_STORY: return <BookOpen size={16} className="text-cyan-400" />;
+      case QuestCategory.IMPORTANT:  return <AlertTriangle size={16} className="text-red-400" />;
+      case QuestCategory.SIDE_JOBS:  return <Briefcase size={16} className="text-green-400" />;
+      default:                       return <BookOpen size={16} className="text-cyan-400" />;
     }
   };
 
@@ -142,20 +142,26 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         onClick={onClick}
         className={`group relative flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition
           ${active
-            ? 'border-rose-500/60 bg-rose-500/10 shadow-[inset_0_0_40px_-20px_rgba(244,63,94,.8)]'
-            : 'border-rose-900/30 bg-[#0c1117] hover:border-rose-700/50 hover:bg-[#111821]'}
+            ? 'border-yellow-500/60 bg-yellow-500/10 shadow-[inset_0_0_40px_-20px_rgba(234,179,8,.8)]'
+            : 'border-yellow-900/30 bg-[#0c1117] hover:border-yellow-700/50 hover:bg-[#111821]'}
           ${locked ? 'opacity-70' : ''}`}
       >
-        <div className="mt-0.5">{locked ? <Lock className="h-4 w-4 text-rose-300" /> : getCategoryIcon(q.category)}</div>
+        <div className="mt-0.5">{locked ? <Lock className="h-4 w-4 text-yellow-300" /> : getCategoryIcon(q.category)}</div>
 
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13px] font-semibold tracking-wide text-slate-100">
             {q.title}
           </div>
-          <div className="mt-0.5 flex items-center gap-2 text-[10px] tracking-widest text-rose-300">
-            {q.category === QuestCategory.MAIN_STORY ? 'MAIN STORY' : q.category === QuestCategory.SIDE_JOBS ? 'SIDE JOB' : 'IMPORTANT'}
+          <div className="mt-0.5 flex items-center gap-2 text-[10px] tracking-widest">
+            <span className={
+              q.category === QuestCategory.MAIN_STORY ? 'text-cyan-300' : 
+              q.category === QuestCategory.SIDE_JOBS ? 'text-green-300' : 
+              'text-red-300'
+            }>
+              {q.category === QuestCategory.MAIN_STORY ? 'MAIN STORY' : q.category === QuestCategory.SIDE_JOBS ? 'SIDE JOB' : 'IMPORTANT'}
+            </span>
             {locked && (
-              <span className="ml-1 rounded-sm border border-rose-600/50 px-1.5 py-0.5 text-[10px] text-rose-300">
+              <span className="ml-1 rounded-sm border border-yellow-600/50 px-1.5 py-0.5 text-[10px] text-yellow-300">
                 LOCKED
               </span>
             )}
@@ -163,7 +169,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         </div>
 
         {/* accent strip */}
-        {active && <div className="absolute inset-y-0 right-0 w-1 rounded-r-md bg-gradient-to-b from-rose-500 to-pink-400" />}
+        {active && <div className="absolute inset-y-0 right-0 w-1 rounded-r-md bg-gradient-to-b from-yellow-500 to-amber-400" />}
       </button>
     );
   };
@@ -172,7 +178,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const RightPanel: React.FC<{ q: Quest | null }> = ({ q }) => {
     if (!q) {
       return (
-        <section className="relative overflow-hidden rounded-xl border border-rose-700/50 bg-[#0f141a]/80 p-6 text-slate-300/90 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
+        <section className="relative overflow-hidden rounded-xl border border-yellow-700/50 bg-[#0f141a]/80 p-6 text-slate-300/90 shadow-[0_0_60px_-18px_rgba(234,179,8,.75)]">
           <div className="opacity-70">Select a quest from the left to see details.</div>
         </section>
       );
@@ -182,10 +188,10 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     const locked = isLocked(q);
 
     return (
-      <section className="relative overflow-hidden rounded-xl border border-rose-700/50 bg-[#0f141a]/80 p-6 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
-        <h1 className="mb-1 text-xl font-bold tracking-wide text-rose-300">{q.title}</h1>
+      <section className="relative overflow-hidden rounded-xl border border-yellow-700/50 bg-[#0f141a]/80 p-6 shadow-[0_0_60px_-18px_rgba(234,179,8,.75)]">
+        <h1 className="mb-1 text-xl font-bold tracking-wide text-yellow-300">{q.title}</h1>
 
-        <div className="inline-flex items-center gap-2 rounded-md border border-rose-700/50 bg-rose-500/10 px-2 py-1 text-[11px] tracking-widest text-rose-200">
+        <div className="inline-flex items-center gap-2 rounded-md border border-yellow-700/50 bg-yellow-500/10 px-2 py-1 text-[11px] tracking-widest text-yellow-200">
           {locked ? (
             <>
               <Lock className="h-3.5 w-3.5" />
@@ -210,7 +216,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             <span>{p.current} / {p.target} {p.label}</span>
           </div>
           <div className="mt-2 h-2 w-full rounded bg-slate-700/50">
-            <div className="h-full rounded bg-rose-400/80" style={{ width: `${p.pct}%` }} />
+            <div className="h-full rounded bg-yellow-400/80" style={{ width: `${p.pct}%` }} />
           </div>
         </div>
 
@@ -226,7 +232,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
           </button>
           <button
             onClick={() => completeQuest(q.id)}
-            className="rounded-md border border-slate-500/60 px-3 py-2 text-sm text-slate-200 hover:border-rose-400/60"
+            className="rounded-md border border-slate-500/60 px-3 py-2 text-sm text-slate-200 hover:border-yellow-400/60"
           >
             Mark Complete
           </button>
@@ -243,7 +249,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
       <div className="flex flex-col gap-4 mb-8">
         {/* Back Button Row */}
         <div>
-          <Link href="/dashboard" className="inline-flex items-center text-gray-400 hover:text-cyan-400 transition-colors group text-sm">
+          <Link href="/dashboard" className="inline-flex items-center text-gray-400 hover:text-yellow-400 transition-colors group text-sm">
             <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-0.5 transition-transform" />
             <span className="tracking-wide">BACK</span>
           </Link>
@@ -251,9 +257,9 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         {/* Title & Actions Row */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center">
-            <div className="h-6 w-1 bg-cyan-500 mr-3"></div>
+            <div className="h-6 w-1 bg-yellow-500 mr-3"></div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              QUEST_<span className="text-cyan-400">SYSTEM</span>
+              QUEST_<span className="text-yellow-400">SYSTEM</span>
             </h1>
             <div className="ml-4 text-sm text-gray-400">
               {quests.length} active quest{quests.length !== 1 ? 's' : ''}
@@ -263,7 +269,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
           <button
             onClick={onGenerateAIQuest}
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-pink-900 bg-opacity-50 border border-pink-500 text-pink-300 hover:bg-opacity-75 transition-all duration-300 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-900 bg-opacity-50 border border-purple-500 text-purple-300 hover:bg-opacity-75 transition-all duration-300 disabled:opacity-50"
           >
             {loading ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
             Generate AI Quests
@@ -272,7 +278,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
           {onCreateCustomQuest && (
             <button
               onClick={onCreateCustomQuest}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-rose-900 bg-opacity-50 border border-rose-500 text-rose-300 hover:bg-opacity-75 transition-all duration-300"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-900 bg-opacity-50 border border-blue-500 text-blue-300 hover:bg-opacity-75 transition-all duration-300"
             >
               <Plus size={16} />
               Create Custom
@@ -291,7 +297,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             placeholder="Search quests..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-rose-500"
+            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500"
           />
         </div>
 
@@ -325,12 +331,12 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
       {/* TWO-PANE JOURNAL LAYOUT */}
       <div className="grid grid-cols-1 md:grid-cols-[360px,1fr] gap-6">
         {/* LEFT LIST */}
-        <aside className="rounded-xl border border-rose-700/50 bg-[#11161c]/70 p-2 shadow-[0_0_60px_-18px_rgba(244,63,94,.75)]">
+        <aside className="rounded-xl border border-yellow-700/50 bg-[#11161c]/70 p-2 shadow-[0_0_60px_-18px_rgba(234,179,8,.75)]">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-[11px] font-semibold tracking-[0.3em] text-rose-300">
+            <h2 className="text-[11px] font-semibold tracking-[0.3em] text-yellow-300">
               {activeCategory === 'all' ? 'ALL QUESTS' : String(activeCategory).replace('_', ' ').toUpperCase()}
             </h2>
-            <div className="h-px flex-1 bg-rose-800/40" />
+            <div className="h-px flex-1 bg-yellow-800/40" />
           </div>
 
           <div className="space-y-1 overflow-hidden rounded-md">
@@ -356,7 +362,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
       {/* Loading State */}
       {loading && (
         <div className="text-center py-12">
-          <RefreshCw size={48} className="mx-auto mb-4 text-rose-400 animate-spin" />
+          <RefreshCw size={48} className="mx-auto mb-4 text-yellow-400 animate-spin" />
           <p className="text-lg text-gray-300">Loading quests...</p>
           <p className="text-sm text-gray-400">Preparing your financial challenges</p>
         </div>
@@ -381,7 +387,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-        active ? 'bg-rose-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+        active ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
       }`}
     >
       {icon} <span>{label}</span>
