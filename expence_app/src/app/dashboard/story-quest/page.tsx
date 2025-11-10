@@ -10,8 +10,7 @@ import {
   QuestStatus, 
   UserContext 
 } from '@/types/quest';
-import { useQuests } from '@/contexts/QuestContext';
-import QuestCard from '@/components/QuestCard';
+// Removed unused quest context imports since story quests are static
 import {
   Search,
   BookOpen,
@@ -40,15 +39,7 @@ const StoryQuestPage: React.FC = () => {
   const level = userContext?.currentLevel ?? 1;
   const { signOut } = useAuth();
 
-  const {
-    quests,
-    loading,
-    startQuest,
-    completeQuest,
-    pauseQuest,
-    removeQuest,
-    generateInitialQuests
-  } = useQuests();
+  // No longer need quest database operations for story quests
 
   // ---------- STORY QUEST STATE ----------
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,22 +54,8 @@ const StoryQuestPage: React.FC = () => {
     return hay.includes(searchTerm.toLowerCase());
   };
   
-  // Get story quests from database and merge with static chapter data
-  const storyQuests = STORY_CHAPTERS.map(chapter => {
-    // Find matching database quest if it exists
-    const dbQuest = quests.find(q => q.tags?.includes('story') && q.tags?.includes(`chapter_${chapter.chapter}`));
-    return {
-      ...chapter,
-      // Override with database quest data if it exists
-      ...(dbQuest && {
-        id: dbQuest.id,
-        progress: dbQuest.progress,
-        status: dbQuest.status,
-        createdAt: dbQuest.createdAt,
-        updatedAt: dbQuest.updatedAt
-      })
-    };
-  }).filter(quest => fitsSearch(quest));
+  // Get story quests - just static data filtered by search
+  const storyQuests = STORY_CHAPTERS.filter(quest => fitsSearch(quest));
 
   const selected = storyQuests.find(q => q.id === selectedId) ?? storyQuests[0] ?? null;
 
@@ -104,78 +81,34 @@ const StoryQuestPage: React.FC = () => {
 
   const isLocked = (quest: StoryQuest) => !quest.isUnlocked(level);
 
-  // Initialize story quests in database when user visits page
-  const initializeStoryQuests = async () => {
-    if (!userContext || loading) return;
+  // Simple handler to move to next unlocked chapter
+  const handleNext = () => {
+    if (!selected) return;
+    const currentIndex = storyQuests.findIndex(q => q.id === selected.id);
     
-    try {
-      // Check if any story quests exist
-      const existingStoryQuests = quests.filter(q => q.tags?.includes('story'));
-      
-      if (existingStoryQuests.length === 0) {
-        // Create the first chapter in database with proper tags
-        const firstChapter = STORY_CHAPTERS[0];
-        await addQuest({
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          title: firstChapter.title,
-          description: firstChapter.description,
-          category: firstChapter.category,
-          difficulty: firstChapter.difficulty,
-          status: firstChapter.status,
-          progress: firstChapter.progress,
-          goal: firstChapter.goal,
-          daysLeft: firstChapter.daysLeft,
-          expReward: firstChapter.expReward,
-          coinReward: firstChapter.coinReward,
-          prerequisites: firstChapter.prerequisites,
-          tags: [...(firstChapter.tags || []), `chapter_${firstChapter.chapter}`],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isAIGenerated: firstChapter.isAIGenerated
-        });
+    // Find the next unlocked chapter
+    for (let i = currentIndex + 1; i < storyQuests.length; i++) {
+      const nextQuest = storyQuests[i];
+      if (!isLocked(nextQuest)) {
+        setSelectedId(nextQuest.id);
+        return;
       }
-    } catch (error) {
-      console.error('Error initializing story quests:', error);
     }
   };
 
-  // Create next chapter when current one is completed
-  const createNextChapter = async (completedChapter: number) => {
-    const nextChapterData = STORY_CHAPTERS.find(ch => ch.chapter === completedChapter + 1);
-    if (!nextChapterData || level < nextChapterData.requiredLevel) return;
-
-    // Check if next chapter already exists
-    const exists = quests.some(q => q.tags?.includes(`chapter_${nextChapterData.chapter}`));
-    if (exists) return;
-
-    try {
-      await addQuest({
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title: nextChapterData.title,
-        description: nextChapterData.description,
-        category: nextChapterData.category,
-        difficulty: nextChapterData.difficulty,
-        status: nextChapterData.status,
-        progress: nextChapterData.progress,
-        goal: nextChapterData.goal,
-        daysLeft: nextChapterData.daysLeft,
-        expReward: nextChapterData.expReward,
-        coinReward: nextChapterData.coinReward,
-        prerequisites: nextChapterData.prerequisites,
-        tags: [...(nextChapterData.tags || []), `chapter_${nextChapterData.chapter}`],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isAIGenerated: nextChapterData.isAIGenerated
-      });
-    } catch (error) {
-      console.error('Error creating next chapter:', error);
+  // Check if there's a next available chapter
+  const hasNextChapter = () => {
+    if (!selected) return false;
+    const currentIndex = storyQuests.findIndex(q => q.id === selected.id);
+    
+    // Check if any subsequent chapter is unlocked
+    for (let i = currentIndex + 1; i < storyQuests.length; i++) {
+      if (!isLocked(storyQuests[i])) {
+        return true;
+      }
     }
+    return false;
   };
-
-  useEffect(() => {
-    initializeStoryQuests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userContext, loading]);
 
   useEffect(() => {
     setSelectedId(prev => {
@@ -183,70 +116,6 @@ const StoryQuestPage: React.FC = () => {
       return storyQuests.some(q => q.id === prev) ? prev : storyQuests[0]?.id ?? null;
     });
   }, [storyQuests]);
-
-  // Custom handlers for story quest actions
-  const handleStartChapter = async (quest: StoryQuest) => {
-    // If this quest exists in database, start it normally
-    if (quests.find(q => q.id === quest.id)) {
-      await startQuest(quest.id);
-    } else {
-      // Create quest in database first, then start it
-      await addQuest({
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title: quest.title,
-        description: quest.description,
-        category: quest.category,
-        difficulty: quest.difficulty,
-        status: quest.status,
-        progress: quest.progress,
-        goal: quest.goal,
-        daysLeft: quest.daysLeft,
-        expReward: quest.expReward,
-        coinReward: quest.coinReward,
-        prerequisites: quest.prerequisites,
-        tags: [...(quest.tags || []), `chapter_${quest.chapter}`],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isAIGenerated: quest.isAIGenerated
-      });
-    }
-  };
-
-  const handleCompleteChapter = async (quest: StoryQuest) => {
-    // If this quest exists in database, complete it normally
-    if (quests.find(q => q.id === quest.id)) {
-      await completeQuest(quest.id);
-      // Create next chapter after completion
-      await createNextChapter(quest.chapter);
-    } else {
-      // Create quest in database first, then complete it
-      const questId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const questData = {
-        id: questId,
-        title: quest.title,
-        description: quest.description,
-        category: quest.category,
-        difficulty: quest.difficulty,
-        status: quest.status,
-        progress: quest.progress,
-        goal: quest.goal,
-        daysLeft: quest.daysLeft,
-        expReward: quest.expReward,
-        coinReward: quest.coinReward,
-        prerequisites: quest.prerequisites,
-        tags: [...(quest.tags || []), `chapter_${quest.chapter}`],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isAIGenerated: quest.isAIGenerated
-      };
-      await addQuest(questData);
-      // Wait a bit then complete it
-      setTimeout(async () => {
-        await completeQuest(questId);
-        await createNextChapter(quest.chapter);
-      }, 500);
-    }
-  };
 
   // ---------- LIST ITEM ----------
   const ListItem: React.FC<{ q: StoryQuest; active: boolean; onClick: () => void }> = ({ q, active, onClick }) => {
@@ -376,35 +245,22 @@ const StoryQuestPage: React.FC = () => {
           </div>
         )}
 
-        {/* Progress */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between text-sm text-slate-300/90">
-            <span>Chapter Progress</span>
-            <span>{p.current} / {p.target} {p.label}</span>
+        {/* Navigation */}
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-slate-400">
+            Chapter {q.chapter} of {STORY_CHAPTERS.length}
           </div>
-          <div className="mt-2 h-2 w-full rounded bg-slate-700/50">
-            <div className="h-full rounded bg-blue-400/80" style={{ width: `${p.pct}%` }} />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex items-center gap-3">
           <button
-            onClick={() => handleStartChapter(q)}
-            disabled={locked || loading}
-            className={`rounded-md px-4 py-2 text-sm font-semibold
-              ${locked ? 'cursor-not-allowed opacity-50 bg-slate-600/50 text-slate-400' : 'bg-cyan-600/80 hover:bg-cyan-500 text-black'}`}
+            onClick={handleNext}
+            disabled={!hasNextChapter()}
+            className={`rounded-md px-4 py-2 text-sm font-semibold flex items-center gap-2
+              ${!hasNextChapter()
+                ? 'cursor-not-allowed opacity-50 bg-slate-600/50 text-slate-400' 
+                : 'bg-blue-600/80 hover:bg-blue-500 text-white'}`}
           >
-            {locked ? 'Chapter Locked' : 'Begin Chapter'}
+            {!hasNextChapter() ? 'No More Chapters' : 'Next Chapter'}
+            {hasNextChapter() && <ArrowRight className="h-4 w-4" />}
           </button>
-          {!locked && (
-            <button
-              onClick={() => handleCompleteChapter(q)}
-              className="rounded-md border border-slate-500/60 px-3 py-2 text-sm text-slate-200 hover:border-blue-400/60"
-            >
-              Complete Chapter
-            </button>
-          )}
         </div>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/40 to-transparent" />
