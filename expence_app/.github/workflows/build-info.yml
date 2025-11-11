@@ -1,0 +1,88 @@
+name: Build Version Tracking
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*', 'bug/*', 'cicd/*' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  track-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for accurate build info
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: expence_app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./expence_app
+        run: npm ci
+
+      - name: Generate build info
+        working-directory: ./expence_app
+        run: node scripts/generate-build-info.js
+
+      - name: Display build information
+        working-directory: ./expence_app
+        run: |
+          echo "## Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "Generated at: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f build-info.json ]; then
+            echo "### Build Details" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat build-info.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment build info on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = './expence_app/build-info.json';
+            
+            if (fs.existsSync(path)) {
+              const buildInfo = JSON.parse(fs.readFileSync(path, 'utf8'));
+              
+              const body = `## 🏗️ Build Information
+              
+**Build Number:** \`${buildInfo.buildNumber}\`
+**Environment:** \`${buildInfo.environment}\`
+**Git Branch:** \`${buildInfo.git.branch}\`
+**Git Hash:** [\`${buildInfo.git.shortHash}\`](https://github.com/Prostpera/expence/commit/${buildInfo.git.hash})
+**Build Time:** ${buildInfo.timestamp}
+**Version:** ${buildInfo.version}
+
+---
+*This comment is automatically generated on each build.*`;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+      - name: Build application
+        working-directory: ./expence_app
+        run: npm run build
+
+      - name: Upload build info as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info-${{ github.sha }}
+          path: |
+            expence_app/build-info.json
+            expence_app/.env.build
+          retention-days: 30

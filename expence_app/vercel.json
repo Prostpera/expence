@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm run build",
+  "env": {
+    "NEXT_PUBLIC_BUILD_ENVIRONMENT": "production"
+  },
+  "github": {
+    "silent": false
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  }
+}
