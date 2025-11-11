@@ -4,22 +4,31 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Image from 'next/image';
-import { ArrowLeft, Send, Zap, Brain, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Send, Zap, Brain, TrendingUp, MessageCircle, Users } from 'lucide-react';
 import {
   LEARNING_SCENARIOS,
   LearningScenario,
   ScenarioQuestion,
   ScenarioDifficulty
 } from '@/types/learningScenario';
+import {
+  CONVERSATIONAL_SCENARIOS,
+  ConversationalScenario,
+  ConversationalScenarioDifficulty
+} from '@/types/conversationalScenario';
 import { useAuth } from '@/components/auth/AuthProvider';
+import ConversationalChat from '@/components/ConversationalChat';
 
 type GameState = 'selection' | 'playing' | 'completed';
+type InterfaceMode = 'classic' | 'conversational';
 
 export default function LearningQuestPage() {
   const router = useRouter();
   const { signOut } = useAuth();
   const [gameState, setGameState] = useState<GameState>('selection');
+  const [interfaceMode, setInterfaceMode] = useState<InterfaceMode>('conversational');
   const [selectedScenario, setSelectedScenario] = useState<LearningScenario | null>(null);
+  const [selectedConversationalScenario, setSelectedConversationalScenario] = useState<ConversationalScenario | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -27,39 +36,46 @@ export default function LearningQuestPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [score, setScore] = useState(0);
+  const [learningPoints, setLearningPoints] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const difficultyColors = {
-    [ScenarioDifficulty.EASY]: {
-      bg: 'bg-green-900',
-      border: 'border-green-500',
-      text: 'text-green-400',
-      accent: 'bg-green-500'
-    },
-    [ScenarioDifficulty.MEDIUM]: {
-      bg: 'bg-yellow-900',
-      border: 'border-yellow-500',
-      text: 'text-yellow-400',
-      accent: 'bg-yellow-500'
-    },
-    [ScenarioDifficulty.HARD]: {
-      bg: 'bg-red-900',
-      border: 'border-red-500',
-      text: 'text-red-400',
-      accent: 'bg-red-500'
-    }
+  const getDifficultyColors = (difficulty: ScenarioDifficulty | ConversationalScenarioDifficulty) => {
+    const difficultyMap = {
+      'easy': {
+        bg: 'bg-green-900',
+        border: 'border-green-500',
+        text: 'text-green-400',
+        accent: 'bg-green-500'
+      },
+      'medium': {
+        bg: 'bg-yellow-900',
+        border: 'border-yellow-500',
+        text: 'text-yellow-400',
+        accent: 'bg-yellow-500'
+      },
+      'hard': {
+        bg: 'bg-red-900',
+        border: 'border-red-500',
+        text: 'text-red-400',
+        accent: 'bg-red-500'
+      }
+    };
+    return difficultyMap[difficulty];
   };
 
-  const difficultyIcons = {
-    [ScenarioDifficulty.EASY]: Zap,
-    [ScenarioDifficulty.MEDIUM]: Brain,
-    [ScenarioDifficulty.HARD]: TrendingUp
+  const getDifficultyIcon = (difficulty: ScenarioDifficulty | ConversationalScenarioDifficulty) => {
+    const iconMap = {
+      'easy': Zap,
+      'medium': Brain,
+      'hard': TrendingUp
+    };
+    return iconMap[difficulty];
   };
 
-  // Typewriter effect for situation text with pauses at punctuation
+  // Typewriter effect for situation text in Classic Quiz mode
   useEffect(() => {
-    if (gameState === 'playing' && selectedScenario && !showFeedback) {
+    if (gameState === 'playing' && selectedScenario && !selectedConversationalScenario && !showFeedback) {
       const currentQuestion = selectedScenario.questions[currentQuestionIndex];
       const fullText = currentQuestion.situation;
 
@@ -101,7 +117,7 @@ export default function LearningQuestPage() {
         setIsTyping(false);
       };
     }
-  }, [gameState, selectedScenario, currentQuestionIndex, showFeedback]);
+  }, [gameState, selectedScenario, selectedConversationalScenario, currentQuestionIndex, showFeedback]);
 
   const handleScenarioSelect = (scenario: LearningScenario) => {
     setSelectedScenario(scenario);
@@ -111,6 +127,24 @@ export default function LearningQuestPage() {
     setScore(0);
     setDisplayedText('');
     setIsTyping(true);
+  };
+
+  const handleConversationalScenarioSelect = (scenario: ConversationalScenario) => {
+    setSelectedConversationalScenario(scenario);
+    setGameState('playing');
+    setScore(0);
+    setLearningPoints(0);
+  };
+
+  const handleConversationalComplete = (finalScore: number, learningPointsAchieved: number) => {
+    setScore(finalScore);
+    setLearningPoints(learningPointsAchieved);
+    setGameState('completed');
+  };
+
+  const handleConversationalExit = () => {
+    setGameState('selection');
+    setSelectedConversationalScenario(null);
   };
 
   const handleOptionSelect = (optionId: string) => {
@@ -165,6 +199,7 @@ export default function LearningQuestPage() {
   const handleRestart = () => {
     setGameState('selection');
     setSelectedScenario(null);
+    setSelectedConversationalScenario(null);
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
     setSelectedOption(null);
@@ -172,6 +207,7 @@ export default function LearningQuestPage() {
     setShowFeedback(false);
     setFeedback('');
     setScore(0);
+    setLearningPoints(0);
   };
 
   const currentQuestion: ScenarioQuestion | undefined = selectedScenario?.questions[currentQuestionIndex];
@@ -203,52 +239,148 @@ export default function LearningQuestPage() {
           </h1>
         </div>
 
-        {/* Scenario Selection */}
+        {/* Interface Mode Selection */}
         {gameState === 'selection' && (
           <div className="space-y-6">
-            <p className="text-gray-300 text-sm mb-6">
-              Choose a financial scenario to test your decision-making skills. Each scenario presents realistic situations with multiple choices.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {LEARNING_SCENARIOS.map((scenario) => {
-                const colors = difficultyColors[scenario.difficulty];
-                const Icon = difficultyIcons[scenario.difficulty];
-
-                return (
-                  <button
-                    key={scenario.id}
-                    onClick={() => handleScenarioSelect(scenario)}
-                    className={`${colors.bg} bg-opacity-30 border ${colors.border} p-6 hover:bg-opacity-50 transition-all relative overflow-hidden group`}
-                  >
-                    <div className={`absolute top-0 right-0 w-16 h-16 ${colors.accent} opacity-10`}></div>
-                    <div className={`absolute bottom-0 left-0 w-5 h-1 ${colors.accent} group-hover:w-full transition-all duration-300`}></div>
-
-                    <div className="relative">
-                      <div className={`inline-flex items-center ${colors.text} mb-3`}>
-                        <Icon size={20} className="mr-2" />
-                        <span className="text-xs font-bold uppercase">{scenario.difficulty}</span>
-                      </div>
-
-                      <h3 className="text-white font-bold text-lg mb-2">{scenario.title}</h3>
-                      <p className="text-gray-400 text-sm mb-4">{scenario.description}</p>
-
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-500">{scenario.totalQuestions} Questions</span>
-                        <div className="flex items-center space-x-3">
-                          <span className={colors.text}>+{scenario.expReward} EXP</span>
-                          <span className="text-yellow-400">+{scenario.coinReward} 🍞</span>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="mb-6">
+              <p className="text-gray-300 text-sm mb-4">
+                Choose your learning experience: Have a conversation with Case or take structured quizzes.
+              </p>
+              
+              <div className="flex space-x-4 mb-6">
+                <button
+                  onClick={() => setInterfaceMode('conversational')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded border transition-all ${
+                    interfaceMode === 'conversational'
+                      ? 'border-cyan-500 bg-cyan-900 bg-opacity-30 text-cyan-400'
+                      : 'border-gray-600 bg-gray-800 bg-opacity-40 text-gray-300 hover:border-gray-500'
+                  }`}
+                >
+                  <MessageCircle size={18} />
+                  <span className="font-semibold">Chat with Case</span>
+                </button>
+                
+                <button
+                  onClick={() => setInterfaceMode('classic')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded border transition-all ${
+                    interfaceMode === 'classic'
+                      ? 'border-cyan-500 bg-cyan-900 bg-opacity-30 text-cyan-400'
+                      : 'border-gray-600 bg-gray-800 bg-opacity-40 text-gray-300 hover:border-gray-500'
+                  }`}
+                >
+                  <Users size={18} />
+                  <span className="font-semibold">Classic Quiz</span>
+                </button>
+              </div>
             </div>
+
+            {/* Conversational Scenarios */}
+            {interfaceMode === 'conversational' && (
+              <>
+                <p className="text-gray-300 text-sm mb-6">
+                  Have natural conversations with Case while helping characters make financial decisions. Learn through realistic dialogue and guided discovery.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {CONVERSATIONAL_SCENARIOS.map((scenario) => {
+                    const colors = getDifficultyColors(scenario.difficulty);
+                    const Icon = getDifficultyIcon(scenario.difficulty);
+
+                    return (
+                      <button
+                        key={scenario.id}
+                        onClick={() => handleConversationalScenarioSelect(scenario)}
+                        className={`${colors.bg} bg-opacity-30 border ${colors.border} p-6 hover:bg-opacity-50 transition-all relative overflow-hidden group`}
+                      >
+                        <div className={`absolute top-0 right-0 w-16 h-16 ${colors.accent} opacity-10`}></div>
+                        <div className={`absolute bottom-0 left-0 w-5 h-1 ${colors.accent} group-hover:w-full transition-all duration-300`}></div>
+
+                        <div className="relative">
+                          <div className={`inline-flex items-center ${colors.text} mb-3`}>
+                            <Icon size={20} className="mr-2" />
+                            <span className="text-xs font-bold uppercase">{scenario.difficulty}</span>
+                          </div>
+
+                          <h3 className="text-white font-bold text-lg mb-2">{scenario.title}</h3>
+                          <p className="text-gray-400 text-sm mb-4">{scenario.description}</p>
+
+                          <div className="flex items-center justify-between text-xs mb-3">
+                            <span className="text-gray-500">Helping: {scenario.characterName}</span>
+                            <span className="text-gray-500">{scenario.totalLearningPoints} Learning Points</span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-yellow-400">+5 🍞 for chatting</span>
+                            </div>
+                            <MessageCircle size={14} className="text-cyan-400" />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* Classic Quiz Scenarios */}
+            {interfaceMode === 'classic' && (
+              <>
+                <p className="text-gray-300 text-sm mb-6">
+                  Test your financial knowledge with structured questions and immediate feedback. Perfect for focused learning on specific topics.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {LEARNING_SCENARIOS.map((scenario) => {
+                    const colors = getDifficultyColors(scenario.difficulty);
+                    const Icon = getDifficultyIcon(scenario.difficulty);
+
+                    return (
+                      <button
+                        key={scenario.id}
+                        onClick={() => handleScenarioSelect(scenario)}
+                        className={`${colors.bg} bg-opacity-30 border ${colors.border} p-6 hover:bg-opacity-50 transition-all relative overflow-hidden group`}
+                      >
+                        <div className={`absolute top-0 right-0 w-16 h-16 ${colors.accent} opacity-10`}></div>
+                        <div className={`absolute bottom-0 left-0 w-5 h-1 ${colors.accent} group-hover:w-full transition-all duration-300`}></div>
+
+                        <div className="relative">
+                          <div className={`inline-flex items-center ${colors.text} mb-3`}>
+                            <Icon size={20} className="mr-2" />
+                            <span className="text-xs font-bold uppercase">{scenario.difficulty}</span>
+                          </div>
+
+                          <h3 className="text-white font-bold text-lg mb-2">{scenario.title}</h3>
+                          <p className="text-gray-400 text-sm mb-4">{scenario.description}</p>
+
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-500">{scenario.totalQuestions} Questions</span>
+                            <div className="flex items-center space-x-3">
+                              <span className="text-yellow-400">+{scenario.coinReward} 🍞</span>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         )}
 
-        {/* Playing State */}
+        {/* Conversational Playing State */}
+        {gameState === 'playing' && selectedConversationalScenario && (
+          <div className="h-[70vh] max-w-6xl mx-auto">
+            <ConversationalChat
+              scenario={selectedConversationalScenario}
+              onComplete={handleConversationalComplete}
+              onExit={handleConversationalExit}
+            />
+          </div>
+        )}
+
+        {/* Classic Playing State */}
         {gameState === 'playing' && selectedScenario && currentQuestion && (
           <div className="max-w-4xl mx-auto">
             {/* Progress Bar */}
@@ -377,7 +509,7 @@ export default function LearningQuestPage() {
         )}
 
         {/* Completed State */}
-        {gameState === 'completed' && selectedScenario && (
+        {gameState === 'completed' && (selectedScenario || selectedConversationalScenario) && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-gray-900 bg-opacity-80 border border-green-500 shadow-lg p-8 text-center">
               <div className="mb-6">
@@ -385,29 +517,49 @@ export default function LearningQuestPage() {
                   <span className="text-4xl">✓</span>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">SCENARIO_COMPLETE!</h2>
-                <p className="text-gray-400">{selectedScenario.title}</p>
+                <p className="text-gray-400">
+                  {selectedScenario?.title || selectedConversationalScenario?.title}
+                </p>
               </div>
 
               <div className="bg-gray-800 bg-opacity-60 p-6 mb-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">YOUR SCORE</p>
-                    <p className="text-3xl font-bold text-cyan-400">{score}/{selectedScenario.totalQuestions}</p>
+                {selectedScenario && (
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">YOUR SCORE</p>
+                      <p className="text-3xl font-bold text-cyan-400">{score}/{selectedScenario.totalQuestions}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">ACCURACY</p>
+                      <p className="text-3xl font-bold text-green-400">
+                        {Math.round((score / selectedScenario.totalQuestions) * 100)}%
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">ACCURACY</p>
-                    <p className="text-3xl font-bold text-green-400">
-                      {Math.round((score / selectedScenario.totalQuestions) * 100)}%
-                    </p>
+                )}
+                
+                {selectedConversationalScenario && (
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">CONVERSATION SCORE</p>
+                      <p className="text-3xl font-bold text-cyan-400">{score}%</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm mb-1">LEARNING POINTS</p>
+                      <p className="text-3xl font-bold text-green-400">
+                        {learningPoints}/{selectedConversationalScenario.totalLearningPoints}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="bg-gray-800 bg-opacity-60 p-4 mb-6">
                 <p className="text-gray-400 text-sm mb-2">REWARDS EARNED</p>
-                <div className="flex items-center justify-center space-x-6">
-                  <span className="text-cyan-400 font-bold">+{selectedScenario.expReward} EXP</span>
-                  <span className="text-yellow-400 font-bold">+{selectedScenario.coinReward} 🍞</span>
+                <div className="flex items-center justify-center">
+                  <span className="text-yellow-400 font-bold">
+                    +{selectedScenario ? selectedScenario.coinReward : 5} 🍞
+                  </span>
                 </div>
               </div>
 
