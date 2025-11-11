@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, Star } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from './auth/AuthProvider';
 
 // Dummy notification data
 const DUMMY_NOTIFICATIONS = [
@@ -69,11 +70,46 @@ interface HeaderProps {
 
 export default function Header({ onSignOut }: HeaderProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState(DUMMY_NOTIFICATIONS);
+  const [userLevel, setUserLevel] = useState(1);
+  const [username, setUsername] = useState('USER_42X');
+  const [coins, setCoins] = useState(1240);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => n.unread).length;
+
+  // Fetch user stats on mount
+  useEffect(() => {
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user]);
+
+  // Listen for stats updates (e.g., when a quest is completed)
+  useEffect(() => {
+    const handleStatsUpdate = () => {
+      fetchUserStats();
+    };
+
+    window.addEventListener('statsUpdated', handleStatsUpdate);
+    return () => window.removeEventListener('statsUpdated', handleStatsUpdate);
+  }, []);
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await fetch('/api/user/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setUserLevel(data.userStats?.level || 1);
+        setUsername(data.userStats?.username || 'USER_42X');
+        setCoins(data.userStats?.coins || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -123,14 +159,14 @@ export default function Header({ onSignOut }: HeaderProps) {
       <div className="mx-auto w-full px-4 py-3 flex items-center justify-between">
         {/* User Info */}
         <div className="flex flex-col">
-          <div className="text-white font-medium text-sm">USER_42X</div>
-          <div className="text-xs text-cyan-400">LEVEL 7</div>
+          <div className="text-white font-medium text-sm">{username}</div>
+          <div className="text-xs text-cyan-400">LEVEL {userLevel}</div>
         </div>
 
         {/* Bread Currency */}
         <div className="cyber-border cyber-border-yellow flex items-center bg-gray-800 bg-opacity-80 px-2 py-1 border border-yellow-700 relative">
           <span className="text-yellow-400 font-bold mr-1">🍞</span>
-          <span className="text-yellow-400 font-medium">1,240</span>
+          <span className="text-yellow-400 font-medium">{coins.toLocaleString()}</span>
         </div>
 
         {/* Navigation Buttons */}
