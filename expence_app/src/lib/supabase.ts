@@ -14,7 +14,7 @@ export const createClientSupabase = () => {
 // Server-side client
 export const createServerSupabase = async () => {
   const { cookies } = await import('next/headers')
-  return createServerComponentClient({ cookies: () => cookies() });
+  return createServerComponentClient({ cookies });
 }
 
 // Admin client for server-side operations
