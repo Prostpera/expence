@@ -182,6 +182,8 @@ export const QuestProvider: React.FC<QuestProviderProps> = ({ children, userCont
       if (response.ok) {
         await loadQuestsFromDatabase();
         await loadUserStats();
+        // Emit event to notify Header and other components about stats update
+        window.dispatchEvent(new Event('statsUpdated'));
       }
     } catch (error) {
       console.error('Error completing quest:', error);
