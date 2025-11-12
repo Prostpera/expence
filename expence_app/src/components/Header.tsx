@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, Star } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './auth/AuthProvider';
+import { supabase } from '@/lib/supabase';
 
 // Dummy notification data
 const DUMMY_NOTIFICATIONS = [
@@ -75,36 +76,48 @@ export default function Header({ onSignOut }: HeaderProps) {
   const [notifications, setNotifications] = useState(DUMMY_NOTIFICATIONS);
   const [userLevel, setUserLevel] = useState(1);
   const [username, setUsername] = useState('USER_42X');
-  const [coins, setCoins] = useState(1240);
+  const [coins] = useState(1240);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
   // Fetch user stats on mount
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchUserStats();
     }
-  }, [user]);
+  }, [user?.id]);
 
   // Listen for stats updates (e.g., when a quest is completed)
   useEffect(() => {
     const handleStatsUpdate = () => {
-      fetchUserStats();
+      if (user?.id) {
+        fetchUserStats();
+      }
     };
 
     window.addEventListener('statsUpdated', handleStatsUpdate);
     return () => window.removeEventListener('statsUpdated', handleStatsUpdate);
-  }, []);
+  }, [user?.id]);
 
   const fetchUserStats = async () => {
+    if (!user?.id) return;
+
     try {
-      const response = await fetch('/api/user/stats');
-      if (response.ok) {
-        const data = await response.json();
-        setUserLevel(data.userStats?.level || 1);
-        setUsername(data.userStats?.username || 'USER_42X');
-        setCoins(data.userStats?.coins || 0);
+      const { data, error } = await supabase
+        .from('users')
+        .select('level, username')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user stats:', error);
+        return;
+      }
+
+      if (data) {
+        setUserLevel(data.level || 1);
+        setUsername(data.username || 'USER_42X');
       }
     } catch (error) {
       console.error('Error fetching user stats:', error);
