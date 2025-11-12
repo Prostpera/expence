@@ -278,7 +278,7 @@ Make it specific to their request and achievable for their profile!`;
       questTemplate = {
         title: `Debt Elimination Quest`,
         description: `Pay off ${targetAmount} in debt using strategic payments and budget optimization.`,
-        category: QuestCategory.MAIN_STORY,
+        category: QuestCategory.MAIN_QUESTS,
         difficulty: QuestDifficulty.HARD,
         tags: ['debt', 'payoff', 'budgeting'],
         estimatedDays: Math.max(14, Math.min(180, Math.floor(targetAmount / 20))),
@@ -515,7 +515,7 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
     count: number = 3
   ): Promise<Quest[]> {
     const quests: Quest[] = [];
-    const categories = [QuestCategory.MAIN_STORY, QuestCategory.IMPORTANT, QuestCategory.SIDE_JOBS];
+    const categories = [QuestCategory.MAIN_QUESTS, QuestCategory.IMPORTANT, QuestCategory.SIDE_JOBS];
     
     console.log(`Generating ${count} quests...`);
     
@@ -576,7 +576,7 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
       {
         title: "Investment Explorer Quest",
         description: "Research ${count} different investment options and write a brief summary of each.",
-        category: QuestCategory.MAIN_STORY,
+        category: QuestCategory.MAIN_QUESTS,
         difficulty: QuestDifficulty.MEDIUM,
         tags: ["investing", "research", "education"],
         estimatedDays: 10,
