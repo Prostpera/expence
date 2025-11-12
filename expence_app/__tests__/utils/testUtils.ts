@@ -104,7 +104,7 @@ export const mockValidQuest = {
   id: "test_quest_123",
   title: "Save $100 Emergency Fund",
   description: "Start building your emergency fund by saving $100",
-  category: QuestCategory.MAIN_STORY,
+  category: QuestCategory.MAIN_QUESTS,
   difficulty: QuestDifficulty.EASY,
   status: QuestStatus.NEW,
   progress: 0,
