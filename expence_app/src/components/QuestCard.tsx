@@ -11,7 +11,6 @@ import {
   Clock, 
   Star, 
   Target, 
-  Coins, 
   Trophy,
   CheckCircle,
   AlertCircle,
@@ -53,9 +52,9 @@ const QuestCard: React.FC<QuestCardProps> = ({
 
   const getCategoryColor = (category: QuestCategory): string => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return 'purple';
-      case QuestCategory.IMPORTANT: return 'cyan';
-      case QuestCategory.SIDE_JOBS: return 'yellow';
+      case QuestCategory.MAIN_QUESTS: return 'green';
+      case QuestCategory.IMPORTANT: return 'blue';
+      case QuestCategory.SIDE_JOBS: return 'purple';
       default: return 'gray';
     }
   };
@@ -86,7 +85,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
 
   const getCategoryLabel = (category: QuestCategory): string => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return 'Main Story';
+      case QuestCategory.MAIN_QUESTS: return 'Main Quest';
       case QuestCategory.IMPORTANT: return 'Important';
       case QuestCategory.SIDE_JOBS: return 'Side Job';
       default: return 'Unknown';
@@ -108,8 +107,11 @@ const QuestCard: React.FC<QuestCardProps> = ({
   const categoryColor = getCategoryColor(quest.category);
   const isCompleted = quest.status === QuestStatus.COMPLETED;
   const canStart = quest.status === QuestStatus.NEW;
-  const canComplete = quest.status === QuestStatus.IN_PROGRESS && quest.progress >= quest.goal;
+  const canComplete = quest.status === QuestStatus.IN_PROGRESS;
   const canPause = quest.status === QuestStatus.IN_PROGRESS;
+  
+  // Debug quest status
+  console.log(`Quest "${quest.title}": status="${quest.status}", canStart=${canStart}, onStart=${!!onStart}`);
 
   const handleEditSave = () => {
     updateQuest(quest.id, {
@@ -123,23 +125,29 @@ const QuestCard: React.FC<QuestCardProps> = ({
 
   const EditDots = () => (
     <span className="inline-flex items-center gap-1">
-      <span className="w-2 h-2 rounded-full bg-yellow-400 opacity-80" />
+      <span className="w-2 h-2 rounded-full bg-green-400 opacity-80" />
       <span className="w-2 h-2 rounded-full bg-cyan-400 opacity-80" />
       <span className="w-2 h-2 rounded-full bg-purple-400 opacity-80" />
     </span>
   );
 
   return (
-    <div className="relative bg-gray-900 border border-yellow-500 rounded-lg p-6 shadow-lg mb-6">
+    <div className={`
+      relative bg-gray-900 rounded-lg p-6 shadow-lg mb-6 border-2
+      ${categoryColor === 'green' ? 'border-emerald-500' : ''}
+      ${categoryColor === 'blue' ? 'border-blue-500' : ''}
+      ${categoryColor === 'purple' ? 'border-purple-500' : ''}
+      ${categoryColor === 'gray' ? 'border-gray-500' : ''}
+    `}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className={`
               px-2 py-1 text-xs font-bold rounded
+              ${categoryColor === 'green' ? 'bg-emerald-900/50 text-emerald-300' : ''}
+              ${categoryColor === 'blue' ? 'bg-blue-900/50 text-blue-300' : ''}
               ${categoryColor === 'purple' ? 'bg-purple-900/50 text-purple-300' : ''}
-              ${categoryColor === 'cyan' ? 'bg-cyan-900/50 text-cyan-300' : ''}
-              ${categoryColor === 'yellow' ? 'bg-yellow-900/50 text-yellow-300' : ''}
             `}>
               {getCategoryLabel(quest.category)}
             </span>
@@ -151,9 +159,9 @@ const QuestCard: React.FC<QuestCardProps> = ({
           </div>
           <h3 className={`
             font-bold text-lg mb-2 group-hover:text-white transition-colors
+            ${categoryColor === 'green' ? 'text-emerald-300' : ''}
+            ${categoryColor === 'blue' ? 'text-blue-300' : ''}
             ${categoryColor === 'purple' ? 'text-purple-300' : ''}
-            ${categoryColor === 'cyan' ? 'text-cyan-300' : ''}
-            ${categoryColor === 'yellow' ? 'text-yellow-300' : ''}
           `}>
             {quest.title}
           </h3>
@@ -182,9 +190,9 @@ const QuestCard: React.FC<QuestCardProps> = ({
           <div 
             className={`
               h-2 rounded-full transition-all duration-300
-              ${categoryColor === 'purple' ? 'bg-purple-500' : ''}
-              ${categoryColor === 'cyan' ? 'bg-cyan-500' : ''}
-              ${categoryColor === 'yellow' ? 'bg-yellow-500' : ''}
+              ${categoryColor === 'green' ? 'bg-emerald-400' : ''}
+              ${categoryColor === 'blue' ? 'bg-blue-400' : ''}
+              ${categoryColor === 'purple' ? 'bg-purple-400' : ''}
             `}
             style={{ width: `${progressPercentage}%` }}
           />
@@ -192,7 +200,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
       </div>
 
       {/* Quest Info */}
-      <div className="grid grid-cols-3 gap-4 mb-4 text-xs">
+      <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
         <div className="flex items-center gap-1 text-gray-400">
           <Clock size={12} />
           <span>{quest.daysLeft} days</span>
@@ -200,10 +208,6 @@ const QuestCard: React.FC<QuestCardProps> = ({
         <div className="flex items-center gap-1 text-gray-400">
           <Trophy size={12} />
           <span>{quest.expReward} EXP</span>
-        </div>
-        <div className="flex items-center gap-1 text-gray-400">
-          <Coins size={12} />
-          <span>{quest.coinReward} coins</span>
         </div>
       </div>
 
@@ -222,9 +226,9 @@ const QuestCard: React.FC<QuestCardProps> = ({
               onClick={() => onStart(quest.id)}
               className={`
                 px-3 py-1 text-xs font-bold rounded transition-all duration-300
+                ${categoryColor === 'green' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
+                ${categoryColor === 'blue' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
                 ${categoryColor === 'purple' ? 'bg-purple-600 hover:bg-purple-700 text-white' : ''}
-                ${categoryColor === 'cyan' ? 'bg-cyan-600 hover:bg-cyan-700 text-white' : ''}
-                ${categoryColor === 'yellow' ? 'bg-yellow-600 hover:bg-yellow-700 text-black' : ''}
               `}
             >
               Start Quest
@@ -234,7 +238,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
           {canComplete && onComplete && (
             <button
               onClick={() => onComplete(quest.id)}
-              className="px-3 py-1 text-xs font-bold rounded bg-green-600 hover:bg-green-700 text-white transition-all duration-300"
+              className="px-3 py-1 text-xs font-bold rounded bg-emerald-500 hover:bg-emerald-600 text-white transition-all duration-300 shadow-lg shadow-emerald-500/25"
             >
               Complete
             </button>
