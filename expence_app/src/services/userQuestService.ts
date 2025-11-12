@@ -422,6 +422,7 @@ export class UserQuestService {
       if (updates.description) updateFields.description = updates.description;
       if (updates.category) updateFields.category = updates.category;
       if (updates.difficulty) updateFields.difficulty = updates.difficulty;
+      if (updates.status) updateFields.status = updates.status;
 
       const { data: updatedQuest, error: updateError } = await supabaseAdmin
         .from('quests')
