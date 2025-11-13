@@ -38,13 +38,7 @@ const StoryQuestPage: React.FC = () => {
   const userContext = useUserContext();
   const level = userContext?.currentLevel ?? 1;
   const { signOut } = useAuth();
-
-  // No longer need quest database operations for story quests
-
-  // ---------- STORY QUEST STATE ----------
   const [searchTerm, setSearchTerm] = useState('');
-
-  // ---------- SELECTION (RIGHT-PANE) ----------
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const fitsSearch = (quest: StoryQuest) => {
