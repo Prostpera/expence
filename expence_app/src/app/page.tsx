@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { createClientSupabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, CheckCircle, Check, X } from 'lucide-react';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,14 @@ export default function Home() {
   const [authLoading, setAuthLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | 'info'>('info');
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+    score: 0
+  });
   
   const supabase = createClientSupabase();
   const router = useRouter();
@@ -51,6 +59,33 @@ export default function Home() {
     setTimeout(() => setMessage(''), 5000);
   };
 
+  const validatePassword = (pwd: string) => {
+    const requirements = {
+      length: pwd.length >= 8,
+      uppercase: /[A-Z]/.test(pwd),
+      lowercase: /[a-z]/.test(pwd),
+      number: /\d/.test(pwd),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+    };
+    
+    const score = Object.values(requirements).filter(Boolean).length;
+    
+    setPasswordStrength({
+      ...requirements,
+      score
+    });
+    
+    return score >= 4; // Require at least 4 out of 5 criteria
+  };
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength.score === 0) return { text: '', color: '' };
+    if (passwordStrength.score <= 2) return { text: 'WEAK', color: 'text-red-400' };
+    if (passwordStrength.score === 3) return { text: 'MODERATE', color: 'text-yellow-400' };
+    if (passwordStrength.score === 4) return { text: 'STRONG', color: 'text-green-400' };
+    return { text: 'VERY STRONG', color: 'text-green-300' };
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
@@ -58,7 +93,7 @@ export default function Home() {
     try {
       if (isLogin) {
         // Login
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -82,8 +117,14 @@ export default function Home() {
           setAuthLoading(false);
           return;
         }
+        
+        if (!validatePassword(password)) {
+          showMessage('PASSWORD DOES NOT MEET SECURITY REQUIREMENTS', 'error');
+          setAuthLoading(false);
+          return;
+        }
 
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -214,6 +255,38 @@ export default function Home() {
 
                       <MessageDisplay />
 
+                      {/* Google Login Button - Moved to top */}
+                      <div className="mb-6 w-full max-w-md">
+                        <div className="text-center mb-3">
+                          <span className="text-sm font-inter text-purple-300 uppercase tracking-wider">
+                            {isLogin ? 'Quick Login' : 'Quick Login'}
+                          </span>
+                        </div>
+                        <button 
+                          onClick={handleGoogleLogin}
+                          disabled={authLoading}
+                          className="w-full bg-purple-100 dark:bg-purple-900 p-3 font-inter text-purple-700 dark:text-purple-200 shadow hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition border border-purple-300 dark:border-purple-600"
+                        >
+                          <span className="font-bold uppercase">
+                            {authLoading ? (
+                              <span className="flex items-center justify-center">
+                                <div className="w-4 h-4 border-2 border-purple-700 border-t-transparent rounded-full animate-spin mr-2"></div>
+                                CONNECTING...
+                              </span>
+                            ) : (
+                              `[ CONNECT WITH GOOGLE ]`
+                            )}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="mb-6 w-full max-w-md flex items-center">
+                        <div className="flex-1 border-t border-purple-600"></div>
+                        <span className="px-4 text-sm text-purple-400 font-inter">OR</span>
+                        <div className="flex-1 border-t border-purple-600"></div>
+                      </div>
+
                       <form onSubmit={handleEmailLogin} className="w-full max-w-md space-y-5">
                         {/* Email Field */}
                         <div className="flex flex-col sm:flex-row items-center">
@@ -263,10 +336,15 @@ export default function Home() {
                             <input 
                               type={showPassword ? "text" : "password"}
                               value={password}
-                              onChange={(e) => setPassword(e.target.value)}
+                              onChange={(e) => {
+                                setPassword(e.target.value);
+                                if (!isLogin) {
+                                  validatePassword(e.target.value);
+                                }
+                              }}
                               className="w-full border-2 border-purple-400 dark:border-purple-600 bg-white dark:bg-gray-800 p-2 pr-10 font-inter text-purple-700 dark:text-purple-200 outline-none shadow focus:border-purple-600 transition"
-                              placeholder={isLogin ? "Enter password" : "Min 6 characters"}
-                              minLength={isLogin ? 1 : 6}
+                              placeholder={isLogin ? "Enter password" : "Min 8 chars, uppercase, lowercase, number, special"}
+                              minLength={isLogin ? 1 : 8}
                               required
                               disabled={authLoading}
                             />
@@ -280,6 +358,55 @@ export default function Home() {
                             </button>
                           </div>
                         </div>
+
+                        {/* Password Strength Indicator (only for registration) */}
+                        {!isLogin && password && (
+                          <div className="mt-3 p-3 border border-gray-600 rounded bg-gray-900/50">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-inter text-purple-300">Password Strength:</span>
+                              <span className={`text-sm font-mono font-bold ${getPasswordStrengthText().color}`}>
+                                {getPasswordStrengthText().text}
+                              </span>
+                            </div>
+                            <div className="space-y-1 text-xs">
+                              <div className={`flex items-center space-x-2 ${passwordStrength.length ? 'text-green-400' : 'text-red-400'}`}>
+                                {passwordStrength.length ? <Check size={12} /> : <X size={12} />}
+                                <span>At least 8 characters</span>
+                              </div>
+                              <div className={`flex items-center space-x-2 ${passwordStrength.uppercase ? 'text-green-400' : 'text-red-400'}`}>
+                                {passwordStrength.uppercase ? <Check size={12} /> : <X size={12} />}
+                                <span>One uppercase letter (A-Z)</span>
+                              </div>
+                              <div className={`flex items-center space-x-2 ${passwordStrength.lowercase ? 'text-green-400' : 'text-red-400'}`}>
+                                {passwordStrength.lowercase ? <Check size={12} /> : <X size={12} />}
+                                <span>One lowercase letter (a-z)</span>
+                              </div>
+                              <div className={`flex items-center space-x-2 ${passwordStrength.number ? 'text-green-400' : 'text-red-400'}`}>
+                                {passwordStrength.number ? <Check size={12} /> : <X size={12} />}
+                                <span>One number (0-9)</span>
+                              </div>
+                              <div className={`flex items-center space-x-2 ${passwordStrength.special ? 'text-green-400' : 'text-red-400'}`}>
+                                {passwordStrength.special ? <Check size={12} /> : <X size={12} />}
+                                <span>One special character (!@#$%^&*)</span>
+                              </div>
+                            </div>
+                            {passwordStrength.score > 0 && (
+                              <div className="mt-2">
+                                <div className="w-full bg-gray-700 rounded-full h-2">
+                                  <div 
+                                    className={`h-2 rounded-full transition-all duration-300 ${
+                                      passwordStrength.score <= 2 ? 'bg-red-500' :
+                                      passwordStrength.score === 3 ? 'bg-yellow-500' :
+                                      passwordStrength.score === 4 ? 'bg-green-500' :
+                                      'bg-green-400'
+                                    }`}
+                                    style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {/* Submit Button */}
                         <button 
@@ -297,26 +424,6 @@ export default function Home() {
                           )}
                         </button>
                       </form>
-
-                      {/* Google Login Button */}
-                      <div className="mb-5 flex w-full max-w-md items-center justify-center">
-                        <button 
-                          onClick={handleGoogleLogin}
-                          disabled={authLoading}
-                          className="w-full bg-purple-100 dark:bg-purple-900 p-2 font-inter text-purple-700 dark:text-purple-200 shadow hover:bg-purple-200 dark:hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                        >
-                          <span className="font-bold">
-                            {authLoading ? (
-                              <span className="flex items-center justify-center">
-                                <div className="w-4 h-4 border-2 border-purple-700 border-t-transparent rounded-full animate-spin mr-2"></div>
-                                CONNECTING...
-                              </span>
-                            ) : (
-                              '[ CONNECT WITH GOOGLE ]'
-                            )}
-                          </span>
-                        </button>
-                      </div>
 
                       {/* Security Info */}
                       <div className="mt-4 text-xs text-purple-400 font-inter text-center space-y-1">
