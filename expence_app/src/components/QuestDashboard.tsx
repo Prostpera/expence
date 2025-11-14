@@ -46,12 +46,13 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const [filteredQuests, setFilteredQuests] = useState<Quest[]>([]);
   const [activeCategory, setActiveCategory] = useState<QuestCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'completed'>('active');
 
   useEffect(() => {
     console.log('QuestDashboard - quests updated:', quests);
     console.log('QuestDashboard - quests length:', quests.length);
     filterQuests();
-  }, [quests, activeCategory, searchTerm]); 
+  }, [quests, activeCategory, searchTerm, statusFilter]); 
 
   const generateMoreQuests = () => {
     generateInitialQuests(userContext);
@@ -59,6 +60,15 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
 
   const filterQuests = () => {
     let filtered = quests;
+
+    // Filter by status (active = new + in_progress, completed = completed)
+    if (statusFilter === 'active') {
+      filtered = filtered.filter(quest => 
+        quest.status === QuestStatus.NEW || quest.status === QuestStatus.IN_PROGRESS
+      );
+    } else if (statusFilter === 'completed') {
+      filtered = filtered.filter(quest => quest.status === QuestStatus.COMPLETED);
+    }
 
     if (activeCategory !== 'all') {
       filtered = filtered.filter(quest => quest.category === activeCategory);
@@ -95,16 +105,46 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
 
   const getCategoryIcon = (category: QuestCategory) => {
     switch (category) {
-      case QuestCategory.MAIN_STORY: return <BookOpen size={18} />;
+      case QuestCategory.MAIN_QUESTS: return <BookOpen size={18} />;
       case QuestCategory.IMPORTANT: return <AlertTriangle size={18} />;
       case QuestCategory.SIDE_JOBS: return <Briefcase size={18} />;
       default: return <BookOpen size={18} />;
     }
   };
 
+  const getCategoryDisplayName = (category: QuestCategory): string => {
+    switch (category) {
+      case QuestCategory.MAIN_QUESTS: return 'Main Quests';
+      case QuestCategory.IMPORTANT: return 'Important';
+      case QuestCategory.SIDE_JOBS: return 'Side Jobs';
+      default: return 'Unknown';
+    }
+  };
+
   const getCategoryCount = (category: QuestCategory | 'all') => {
-    if (category === 'all') return quests.length;
-    return quests.filter(quest => quest.category === category).length;
+    let relevantQuests = quests;
+    
+    // Filter by status first
+    if (statusFilter === 'active') {
+      relevantQuests = relevantQuests.filter(quest => 
+        quest.status === QuestStatus.NEW || quest.status === QuestStatus.IN_PROGRESS
+      );
+    } else if (statusFilter === 'completed') {
+      relevantQuests = relevantQuests.filter(quest => quest.status === QuestStatus.COMPLETED);
+    }
+    
+    if (category === 'all') return relevantQuests.length;
+    return relevantQuests.filter(quest => quest.category === category).length;
+  };
+
+  const getStatusCount = (status: 'active' | 'completed') => {
+    if (status === 'active') {
+      return quests.filter(quest => 
+        quest.status === QuestStatus.NEW || quest.status === QuestStatus.IN_PROGRESS
+      ).length;
+    } else {
+      return quests.filter(quest => quest.status === QuestStatus.COMPLETED).length;
+    }
   };
 
   const getQuestsByCategory = (category: QuestCategory) => {
@@ -156,6 +196,31 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         </div>
       </div>
 
+      {/* Status Filter */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setStatusFilter('active')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+            statusFilter === 'active'
+              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Active ({getStatusCount('active')})
+        </button>
+        
+        <button
+          onClick={() => setStatusFilter('completed')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+            statusFilter === 'completed'
+              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Completed ({getStatusCount('completed')})
+        </button>
+      </div>
+
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
@@ -193,9 +258,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             >
               {getCategoryIcon(category)}
               <span className="hidden sm:inline">
-                {category.replace('_', ' ').split(' ').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')}
+                {getCategoryDisplayName(category)}
               </span>
               ({getCategoryCount(category)})
             </button>
@@ -215,9 +278,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
                 <div className="flex items-center gap-3 mb-4">
                   {getCategoryIcon(category)}
                   <h2 className="text-xl font-bold text-white">
-                    {category.replace('_', ' ').split(' ').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')}
+                    {getCategoryDisplayName(category)}
                   </h2>
                   <span className="text-sm text-gray-400">
                     ({categoryQuests.length})
