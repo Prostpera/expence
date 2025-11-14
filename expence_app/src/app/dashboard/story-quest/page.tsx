@@ -227,7 +227,7 @@ const StoryQuestPage: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-sm leading-relaxed text-cyan-100/90 italic">
-                  "{q.caseDialogue}"
+                  &quot;{q.caseDialogue}&quot;
                 </p>
               </div>
             )}

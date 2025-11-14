@@ -71,12 +71,10 @@ jobs:
       - name: Run ESLint (static analysis)
         working-directory: ./expence_app
         run: npm run lint
-        continue-on-error: true
       
       - name: Run TypeScript type checking
         working-directory: ./expence_app
         run: npx tsc --noEmit
-        continue-on-error: true
       
       - name: Run all unit and integration tests
         working-directory: ./expence_app

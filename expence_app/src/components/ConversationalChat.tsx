@@ -416,7 +416,7 @@ CRITICAL: Respond in EXACTLY 1-2 complete sentences. Be super concise but ensure
           <div className="text-center">
             <p className="text-green-400 font-semibold mb-2">Great Conversation!</p>
             <p className="text-gray-300 text-sm">
-              You've had a meaningful discussion about helping {scenario.characterName}.
+              You&apos;ve had a meaningful discussion about helping {scenario.characterName}.
             </p>
             <div className="mt-3 flex justify-center space-x-4 text-sm">
               <span className="text-cyan-400">
