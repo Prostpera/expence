@@ -1,5 +1,5 @@
 import { supabase, supabaseAdmin } from '@/lib/supabase';
-import { Quest, QuestStatus, UserContext } from '@/types/quest';
+import { Quest, QuestStatus, QuestCategory, QuestDifficulty, UserContext } from '@/types/quest';
 import crypto from 'crypto';
 
 interface CreateQuestData {
@@ -33,7 +33,7 @@ class EncryptionService {
       let encrypted = cipher.update(text, 'utf8', 'hex');
       encrypted += cipher.final('hex');
       return iv.toString('hex') + ':' + encrypted;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Encryption error:', error);
       return text;
     }
@@ -48,7 +48,7 @@ class EncryptionService {
       let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
       return decrypted;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Decryption error:', error);
       return text;
     }
@@ -96,7 +96,7 @@ export class UserQuestService {
       }
 
       return this.mapDatabaseQuestToQuest(data);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in createUserQuest:', error);
       return null;
     }
@@ -134,7 +134,7 @@ export class UserQuestService {
       }
 
       console.log('Mapping quests...');
-      const mappedQuests = data.map((quest: any) => {
+      const mappedQuests = data.map((quest: Record<string, unknown>) => {
         console.log('Mapping quest:', quest.id, quest.title);
         return this.mapDatabaseQuestToQuest(quest);
       });
@@ -186,7 +186,7 @@ export class UserQuestService {
       const newProgress = Math.min(progress, goal);
       const isCompleted = newProgress >= goal;
       
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         quest_data: {
           ...questData,
           progress: newProgress
@@ -223,7 +223,7 @@ export class UserQuestService {
         quest: this.mapDatabaseQuestToQuest(updatedQuest),
         expGained
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in updateQuestProgress:', error);
       return { quest: null, expGained: 0 };
     }
@@ -236,20 +236,20 @@ export class UserQuestService {
         return { success: false, expGained: 0 };
       }
 
-      const questData = quest.quest_data || {};
-      const result = await this.updateQuestProgress(questId, userId, questData.goal || 1);
+      const questData = (quest.quest_data as Record<string, unknown>) || {};
+      const result = await this.updateQuestProgress(questId, userId, (questData.goal as number) || 1);
       
       return {
         success: result.quest !== null,
         expGained: result.expGained
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in completeQuest:', error);
       return { success: false, expGained: 0 };
     }
   }
 
-  async getUserQuest(questId: string, userId: string): Promise<any> {
+  async getUserQuest(questId: string, userId: string): Promise<Record<string, unknown> | null> {
     try {
       const { data, error } = await supabase
         .from('quests')
@@ -264,7 +264,7 @@ export class UserQuestService {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in getUserQuest:', error);
       return null;
     }
@@ -283,7 +283,7 @@ export class UserQuestService {
         return { newLevel: 1, leveledUp: false };
       }
 
-      let newTotalExp = (user.total_exp || 0) + expGained;
+      const newTotalExp = (user.total_exp || 0) + expGained;
       let newCurrentExp = (user.current_exp || 0) + expGained;
       let newLevel = user.level || 1;
       let leveledUp = false;
@@ -313,7 +313,7 @@ export class UserQuestService {
       }
 
       return { newLevel, leveledUp };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in updateUserExperience:', error);
       return { newLevel: 1, leveledUp: false };
     }
@@ -372,8 +372,8 @@ export class UserQuestService {
         };
       }
 
-      const completedQuests = quests.filter((q: any) => q.status === QuestStatus.COMPLETED).length;
-      const activeQuests = quests.filter((q: any) => 
+      const completedQuests = quests.filter((q: Record<string, unknown>) => q.status === QuestStatus.COMPLETED).length;
+      const activeQuests = quests.filter((q: Record<string, unknown>) => 
         q.status === QuestStatus.NEW || q.status === QuestStatus.IN_PROGRESS
       ).length;
 
@@ -385,13 +385,13 @@ export class UserQuestService {
         completedQuests,
         activeQuests
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in getUserStats:', error);
       return null;
     }
   }
 
-  async updateQuestFields(questId: string, userId: string, updates: any): Promise<Quest | null> {
+  async updateQuestFields(questId: string, userId: string, updates: Record<string, unknown>): Promise<Quest | null> {
     try {
       // Fetch current quest
       const { data: currentQuest, error: fetchError } = await supabaseAdmin
@@ -414,7 +414,7 @@ export class UserQuestService {
       };
 
       // Also update top-level fields if present
-      const updateFields: any = {
+      const updateFields: Record<string, unknown> = {
         quest_data: newQuestData,
         updated_at: new Date().toISOString(),
       };
@@ -437,43 +437,43 @@ export class UserQuestService {
       }
 
       return this.mapDatabaseQuestToQuest(updatedQuest);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in updateQuestFields:', error);
       return null;
     }
   }
 
-  private mapDatabaseQuestToQuest(dbQuest: any): Quest {
-    const questData = dbQuest.quest_data || {};
+  private mapDatabaseQuestToQuest(dbQuest: Record<string, unknown>): Quest {
+    const questData = (dbQuest.quest_data as Record<string, unknown>) || {};
     
     let userContext = null;
     if (questData.userContext) {
       try {
-        const decryptedContext = this.encryption.decrypt(questData.userContext);
+        const decryptedContext = this.encryption.decrypt(questData.userContext as string);
         userContext = JSON.parse(decryptedContext);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error decrypting user context:', error);
       }
     }
 
     return {
-      id: dbQuest.id,
-      title: dbQuest.title,
-      description: dbQuest.description,
-      category: dbQuest.category,
-      difficulty: dbQuest.difficulty,
-      status: dbQuest.status,
-      progress: questData.progress || 0,
-      goal: questData.goal || 1,
-      daysLeft: dbQuest.due_date ? Math.ceil((new Date(dbQuest.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0,
-      expReward: dbQuest.exp_reward,
-      coinReward: questData.coinReward || 0,
-      prerequisites: questData.prerequisites || [],
-      tags: questData.tags || [],
-      createdAt: new Date(dbQuest.created_at),
-      updatedAt: new Date(dbQuest.updated_at),
-      completedAt: dbQuest.completion_date ? new Date(dbQuest.completion_date) : undefined,
-      isAIGenerated: dbQuest.ai_generated,
+      id: dbQuest.id as string,
+      title: dbQuest.title as string,
+      description: dbQuest.description as string,
+      category: dbQuest.category as QuestCategory,
+      difficulty: dbQuest.difficulty as QuestDifficulty,
+      status: dbQuest.status as QuestStatus,
+      progress: (questData.progress as number) || 0,
+      goal: (questData.goal as number) || 1,
+      daysLeft: dbQuest.due_date ? Math.ceil((new Date(dbQuest.due_date as string).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0,
+      expReward: dbQuest.exp_reward as number,
+      coinReward: (questData.coinReward as number) || 0,
+      prerequisites: (questData.prerequisites as string[]) || [],
+      tags: (questData.tags as string[]) || [],
+      createdAt: new Date(dbQuest.created_at as string),
+      updatedAt: new Date(dbQuest.updated_at as string),
+      completedAt: dbQuest.completion_date ? new Date(dbQuest.completion_date as string) : undefined,
+      isAIGenerated: dbQuest.ai_generated as boolean,
       userContext
     };
   }
