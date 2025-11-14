@@ -245,7 +245,7 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                       rows={3}
                     />
                     <p className="text-xs text-gray-400 mt-1">
-                      Be specific about amounts, timeframes, or what you're saving for
+                      Be specific about amounts, timeframes, or what you&apos;re saving for
                     </p>
                   </div>
 
