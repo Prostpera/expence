@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useQuests } from '../contexts/QuestContext';
 import Modal from './Modal';
+import DeleteQuestModal from './DeleteQuestModal';
 
 interface QuestCardProps {
   quest: Quest;
@@ -44,6 +45,8 @@ const QuestCard: React.FC<QuestCardProps> = ({
 }) => {
   const { updateQuest } = useQuests();
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const [editData, setEditData] = React.useState({
     title: quest.title,
     description: quest.description,
@@ -260,7 +263,7 @@ const QuestCard: React.FC<QuestCardProps> = ({
 
           {onDelete && (
             <button
-              onClick={() => onDelete(quest.id)}
+              onClick={() => setShowDeleteModal(true)}
               className="px-2 py-1 text-xs font-bold rounded bg-red-600 hover:bg-red-700 text-white transition-all duration-300"
               title="Delete Quest"
             >
@@ -367,6 +370,23 @@ const QuestCard: React.FC<QuestCardProps> = ({
           </div>
         </Modal>
       )}
+
+      {/* Delete Quest Modal */}
+      <DeleteQuestModal
+        questTitle={quest.title}
+        isOpen={showDeleteModal}
+        isLoading={isDeleting}
+        onConfirm={async () => {
+          setIsDeleting(true);
+          try {
+            await onDelete?.(quest.id);
+            setShowDeleteModal(false);
+          } finally {
+            setIsDeleting(false);
+          }
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };
