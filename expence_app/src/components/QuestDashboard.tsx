@@ -10,6 +10,7 @@ import {
 } from '../types/quest';
 import { useQuests } from '../contexts/QuestContext';
 import QuestCard from './QuestCard';
+import DeleteQuestModal from './DeleteQuestModal';
 import { 
   Plus, 
   Filter, 
@@ -47,6 +48,9 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const [activeCategory, setActiveCategory] = useState<QuestCategory | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'active' | 'completed'>('active');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [questToDelete, setQuestToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     console.log('QuestDashboard - quests updated:', quests);
@@ -98,8 +102,23 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   };
 
   const handleDeleteQuest = (questId: string) => {
-    if (window.confirm('Are you sure you want to delete this quest?')) {
-        removeQuest(questId);
+    const quest = quests.find(q => q.id === questId);
+    if (quest) {
+      setQuestToDelete({ id: questId, title: quest.title });
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (questToDelete) {
+      setIsDeleting(true);
+      try {
+        await removeQuest(questToDelete.id);
+        setDeleteModalOpen(false);
+        setQuestToDelete(null);
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -343,6 +362,20 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
           <p className="text-lg text-gray-300">Loading quests...</p>
           <p className="text-sm text-gray-400">Preparing your financial challenges</p>
         </div>
+      )}
+
+      {/* Delete Quest Modal */}
+      {questToDelete && (
+        <DeleteQuestModal
+          questTitle={questToDelete.title}
+          isOpen={deleteModalOpen}
+          isLoading={isDeleting}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => {
+            setDeleteModalOpen(false);
+            setQuestToDelete(null);
+          }}
+        />
       )}
     </div>
   );
