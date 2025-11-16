@@ -20,15 +20,22 @@ import Image from 'next/image';
 import { useQuests } from '@/contexts/QuestContext';
 import { QuestStatus } from '@/types/quest';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useUserContext } from '@/components/QuestWrapper';
+import { STORY_CHAPTERS } from '@/data/storyQuests';
 
 export default function DashboardContent() {
   const { quests } = useQuests();
+  const userContext = useUserContext();
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   
   // Calculate quest counts dynamically
   const activeQuests = quests.filter(q => q.status === 'new' || q.status === 'in_progress');
-  const mainQuests = quests.filter(q => q.category === 'main_story');
   const sideQuests = quests.filter(q => q.category === 'side_jobs');
+  
+  // Calculate unlocked story chapters
+  const userLevel = userContext?.currentLevel ?? 1;
+  const unlockedStoryChapters = STORY_CHAPTERS.filter(chapter => chapter.isUnlocked(userLevel));
+  const totalStoryChapters = STORY_CHAPTERS.length;
 
   // Recently completed quests (limit 5)
   const completedQuests = quests
@@ -133,7 +140,7 @@ export default function DashboardContent() {
                   <span>MAIN QUESTS</span>
                 </h2>
                 <p className="mt-2 text-3xl font-bold text-cyan-400">
-                  {mainQuests.length}
+                  {unlockedStoryChapters.length}/{totalStoryChapters}
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
                   <AlertTriangle size={10} className="mr-1 text-cyan-500" />
