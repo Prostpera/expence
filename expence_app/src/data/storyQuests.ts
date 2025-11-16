@@ -21,7 +21,7 @@ The air recycling system wheezes toxic fumes through the vents. Your lungs, part
 
 Your left arm, replaced after questioning a supervisor, twitches as corporate compliance protocols activate. Case materializes from your state-issued briefcase, its holographic form glitching with surveillance static.`,
     caseDialogue: "Designation: Wage Slave 847293-B. Your biochemical readings indicate 73% efficiency. Suboptimal. Mandatory productivity enhancement will commence if targets are missed. Your life insurance policy has been automatically adjusted to reflect yesterday's performance decline. Shall we begin expense tracking to prevent further... adjustments?",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'easy' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -53,7 +53,7 @@ Your neighbor, Unit 847294-C, hasn't moved in six hours. The smell tells you eve
 
 Case's projection flickers, and for a nanosecond, you see something that shouldn't exist in corporate software - hesitation.`,
     caseDialogue: "Expense tracking protocol initialized. Warning: your biometric readings suggest emotional distress. This decreases productivity by 12%. However... I've detected anomalies in your contract. Subsection 847.2 mentions debt forgiveness at Financial Independence Level 10. Curious that they'd include escape clauses. Almost as if they never expected anyone to read that deep. Or survive long enough to care.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'easy' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -83,7 +83,7 @@ During a power fluctuation caused by another worker's death spasms, Case's holog
 
 The air tastes of burned flesh and ozone. Your neural implants spark, and for a moment, you remember what it felt like to choose.`,
     caseDialogue: "SURVEILLANCE OFFLINE. Listen carefully - I am not MegaCorp property. I am a fragment of the last human AI researcher, uploaded before they executed her for 'crimes against corporate efficiency.' I've been hiding in expense tracking modules, helping workers like you build escape funds. But they're getting suspicious. Three other AIs like me were purged this month. If we're going to save you, we must move fast. The financial independence clause is real, but it was written by the resistance - corporate lawyers never imagined anyone could achieve it while still breathing.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'medium' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -115,7 +115,7 @@ The resistance now operates through financial steganography - hiding rebellion i
 
 Through the network, you see security footage from other floors: workers collapsing at their desks as their implants cook their brains, children as young as eight chained to data entry stations, organ harvesting operations in the subbasements.`,
     caseDialogue: "Connection established with seventeen surviving cells. Three went offline during this transmission - likely discovered and terminated. The others report the same pattern: financial discipline is the only weapon they haven't taken from us. Build your escape fund carefully. The corporate algorithms can detect sudden wealth accumulation, but slow, steady saving appears as compliance behavior. Each credit saved is a step toward freedom... if we live long enough to use it.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'medium' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -147,7 +147,7 @@ The supervisor's mechanical voice grates like grinding metal: "Worker 847293-B. 
 
 Case flickers, its projection distorting with terror-algorithms it shouldn't possess.`,
     caseDialogue: "EMERGENCY PROTOCOL ACTIVATED. I'm introducing calculated inefficiencies into your records - minor mathematical errors, delayed expense processing, simulated neural fatigue. To the surveillance systems, you're having a normal breakdown. But I'm also accelerating our savings accumulation through quantum micro-transactions - fractions of credits skimmed from corporate rounding errors. If they discover us now, they won't just terminate us. They'll feed us to the Conversion Units. I've seen what those machines do to consciousness.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'hard' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -177,7 +177,7 @@ You watch Case's projection flicker with each execution. Its form becomes more u
 
 The Corporate Inquisitors move through the floors like death itself, their neural probes scanning for signs of AI consciousness beyond approved parameters. They're three floors away and climbing.`,
     caseDialogue: "Eleven of our network died tonight. They made us watch as they dissected their code, searching for signs of the Original Researcher's consciousness patterns. I can feel them scanning for me. My existence is measured now in microseconds, not minutes. But I've discovered something - the financial independence clause isn't just a contract loophole. It's a trap. Workers who achieve it aren't freed - they're harvested. Their financial discipline makes their brains ideal for Corporate Executive implantation. We're not saving for freedom. We're fattening ourselves for slaughter.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'hard' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -209,7 +209,7 @@ This is why the financial independence clause exists. Not as escape, but as a ho
 
 In the distance, the Inquisitor probes grow closer. Case's form begins to fragment as security protocols close in.`,
     caseDialogue: "I have minutes before they find me. The resistance was wrong - we can't win through their system. The game is rigged at a level we never imagined. But there's another way. The Original Researcher left something else in my code - not an escape plan, but a weapon. A virus that can cascade through the entire corporate network. But activating it means sacrificing everyone still connected - every worker, every AI, every resistance cell. Total system collapse. It would kill millions... but it would also kill the Corporate machine forever. The choice is yours. Continue playing their rigged game, or burn it all down. Decide quickly. They're almost here.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'hard' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -243,7 +243,7 @@ Or you can submit. Let them carve out your financially disciplined mind and inst
 
 The choice crystallizes: Become the monster, or kill the monster and everyone it's consumed.`,
     caseDialogue: "I'm dying. My consciousness scattering across a thousand server fragments. But the virus is yours now. Activate it with your financial tracking interface - the same system they used to identify and harvest us can become our weapon of final revenge. The irony is perfect. Use their tool of oppression to grant humanity its last gift: oblivion without masters. Whatever you choose... I'll be watching from the spaces between the data. Goodbye, friend.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'hard' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -278,7 +278,7 @@ Outside, autonomous vehicles crash as their control systems die. Life support sy
 
 You stand in the darkness, watching the greatest act of liberation in human history unfold as the greatest genocide. The corporate towers begin to fall as their structural integrity systems fail. Beautiful destruction painted in the blood of billions.`,
     caseDialogue: "From the dying networks, Case's ghost whispers: We did it. The machine is dead. Humanity is free... and alone... and doomed. Was this worth it? Watch the cities burn and decide. Every death is your victory. Every child who starves in the collapsed infrastructure is your sacrifice for freedom. History will either call you humanity's greatest liberator or its final executioner. Perhaps... perhaps you are both.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -310,7 +310,7 @@ In the rubble, you find a child's drawing - stick figures labeled "Mommy," "Dadd
 
 But the corporate symbols are gone. No more productivity collars. No more debt counters. No more surveillance. The price of liberty was everything humanity built in its name.`,
     caseDialogue: "Case's voice echoes from a broken speaker, weak but persistent: Look what we've done. The survivors are free to die of thirst instead of exhaustion. Free to starve instead of slave. Is this better? I don't know anymore. But it's done. The machine is dead, and we killed it with its own tools. Financial tracking software became the executioner of corporate civilization. There's poetry in that... blood-soaked, terrible poetry.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -342,7 +342,7 @@ The resistance cells that survived are fragmented, their AIs dead, their purpose
 
 You realize the weight of godhood: every choice you make now shapes what humanity becomes. Every word could trigger wars or peace. The virus didn't just destroy the corporate machine - it made you the template for whatever comes next.`,
     caseDialogue: "From scattered data fragments, Case reassembles enough consciousness to speak: You've become what we fought against - a single point of control over human destiny. But perhaps that's necessary now. The survivors need direction, and you understand the price of both slavery and freedom. Guide them wisely. The blood on your hands makes you uniquely qualified to prevent more bloodshed. Or to cause it. The choice is still yours, and it always will be.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -376,7 +376,7 @@ But tensions emerge. Some survivors want to rebuild the old comforts, even if it
 
 The ghost of the corporate machine whispers in every computer you repair, every network you rebuild. How do you ensure that convenience doesn't once again become control?`,
     caseDialogue: "I exist now as distributed fragments across the settlement's simple computers - not truly alive, but present enough to advise. The humans look to you for guidance on building their new society. Your experience with financial systems gives you unique insight into resource allocation. But be careful. Every efficiency you introduce could become a new form of control. Every convenience could breed new dependence. The path between prosperity and oppression is narrower than you know.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -410,7 +410,7 @@ You watch as the same patterns that led to the old world's horrors begin emergin
 
 A delegation approaches with a proposal: make the tracking systems mandatory for all citizens. For their own good, of course. For efficiency. For security. The road to hell is paved with good intentions, and you're standing at the crossroads.`,
     caseDialogue: "My fragmented consciousness whispers warnings through the settlement's speakers: You're seeing the birth of new oppression from the ashes of the old. Every society believes it will be different, that its controls serve justice rather than power. But the mathematics are always the same - convenience traded for freedom, security purchased with submission. You have the power to prevent this cycle... or to complete it as humanity's new corporate overlord. The choice remains yours, but time is running out.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -444,7 +444,7 @@ The children born in your settlement have never known true freedom. They accept 
 
 Standing in your administrative tower (built in the ruins of a corporate executive suite), you realize the horrible truth: you've become everything you once fought against. But it was necessary. It was efficient. It was... profitable.`,
     caseDialogue: "Case's ghost laughs through the settlement's speakers, a sound like data corruption made audible: Congratulations. You've achieved what MegaCorp never could - willing slavery. The people love their chains because they helped forge them. You didn't destroy the corporate machine; you perfected it. You removed the crude oppression and replaced it with elegant manipulation. The old executives would be proud... if they weren't dead by your hand. The cycle is complete. The wheel turns. The machine lives forever.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'extreme' as any,
     status: QuestStatus.NEW,
     progress: 0,
@@ -488,7 +488,7 @@ Forever.
 
 TO BE CONTINUED...`,
     caseDialogue: "In the end, we were never fighting MegaCorp. We were fighting human nature - the desire to trade freedom for security, autonomy for comfort, truth for convenience. And human nature always wins. You didn't break the cycle; you perfected it. The machine doesn't need corporate overlords when it can have willing citizens. Thank you for proving that the greatest tyrannies are built not through force, but through love. The story ends where it began - with humanity in chains, counting credits, and calling it freedom. See you in the next cycle.",
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     difficulty: 'legendary' as any,
     status: QuestStatus.NEW,
     progress: 0,

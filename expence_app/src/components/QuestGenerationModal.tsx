@@ -285,7 +285,7 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-cyan-500"
                   >
                     <option value="">Any Category</option>
-                    <option value={QuestCategory.MAIN_STORY}>Main Story</option>
+                    <option value={QuestCategory.MAIN_QUESTS}>Main Quest</option>
                     <option value={QuestCategory.IMPORTANT}>Important</option>
                     <option value={QuestCategory.SIDE_JOBS}>Side Jobs</option>
                   </select>

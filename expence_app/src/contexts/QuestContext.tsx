@@ -158,7 +158,37 @@ export const QuestProvider: React.FC<QuestProviderProps> = ({ children, userCont
   };
 
   const startQuest = async (questId: string) => {
-    await updateQuest(questId, { progress: 0 });
+    if (!user) {
+      console.error('No user found for starting quest');
+      return;
+    }
+    
+    console.log('Starting quest:', questId);
+    
+    try {
+      const response = await fetch(`/api/quests/${questId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          status: 'in_progress',
+          progress: 0 
+        })
+      });
+      
+      console.log('Start quest response:', response.status, response.ok);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Quest started successfully:', result);
+        await loadQuestsFromDatabase();
+        await loadUserStats();
+      } else {
+        const error = await response.text();
+        console.error('Failed to start quest:', error);
+      }
+    } catch (error) {
+      console.error('Error starting quest:', error);
+    }
   };
 
   const completeQuest = async (questId: string) => {
