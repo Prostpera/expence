@@ -29,7 +29,7 @@ export interface Quest {
 }
 
 export enum QuestCategory {
-  MAIN_STORY = 'main_story',
+  MAIN_QUESTS = 'main_story',
   IMPORTANT = 'important',
   SIDE_JOBS = 'side_jobs'
 }
@@ -82,10 +82,10 @@ export interface QuestTemplate {
 
 // Hardcoded quest templates for testing
 export const QUEST_TEMPLATES: QuestTemplate[] = [
-  // Main Story Quests
+  // Main Quests
   {
     id: 'main_001',
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     title: 'Create Your Emergency Fund Foundation',
     description: 'Start building financial security by saving $${amount} for unexpected expenses.',
     difficulty: QuestDifficulty.EASY,
@@ -97,7 +97,7 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
   },
   {
     id: 'main_002',
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     title: 'Master the Art of Budgeting',
     description: 'Track every expense for ${days} days to understand your spending patterns.',
     difficulty: QuestDifficulty.MEDIUM,
@@ -110,7 +110,7 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
   },
   {
     id: 'main_003',
-    category: QuestCategory.MAIN_STORY,
+    category: QuestCategory.MAIN_QUESTS,
     title: 'Debt Destroyer Challenge',
     description: 'Pay off $${amount} in debt using the snowball or avalanche method.',
     difficulty: QuestDifficulty.HARD,

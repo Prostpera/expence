@@ -1,12 +1,14 @@
 'use client';
 
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { QuestProvider } from '@/contexts/QuestContext';
 import { UserContext } from '@/types/quest';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/lib/supabase';
 
-const mockUserContext: UserContext = {
+const defaultUserContext: UserContext = {
   financialGoals: ['emergency_fund', 'debt_payoff', 'investing'],
-  currentLevel: 5,
+  currentLevel: 1,
   completedQuests: ['main_001', 'side_001'],
   preferences: {
     riskTolerance: 'medium',
@@ -37,9 +39,45 @@ interface QuestWrapperProps {
 }
 
 export function QuestWrapper({ children }: QuestWrapperProps) {
+  const { user } = useAuth();
+  const [userContext, setUserContext] = useState<UserContext>(defaultUserContext);
+
+  useEffect(() => {
+    const fetchUserLevel = async () => {
+      if (!user?.id) {
+        setUserContext(defaultUserContext);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('level')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user level:', error);
+          setUserContext(defaultUserContext);
+          return;
+        }
+
+        setUserContext({
+          ...defaultUserContext,
+          currentLevel: data?.level || 1
+        });
+      } catch (error) {
+        console.error('Error fetching user level:', error);
+        setUserContext(defaultUserContext);
+      }
+    };
+
+    fetchUserLevel();
+  }, [user?.id]);
+
   return (
-    <UserContextContext.Provider value={mockUserContext}>
-      <QuestProvider userContext={mockUserContext}>
+    <UserContextContext.Provider value={userContext}>
+      <QuestProvider userContext={userContext}>
         {children}
       </QuestProvider>
     </UserContextContext.Provider>

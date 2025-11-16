@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import ChatbotModal from '@/components/ChatbotModal';
 import QuestDashboard from '@/components/QuestDashboard';
 import QuestGenerationModal from '@/components/QuestGenerationModal';
-import { Quest, UserContext, QuestDifficulty } from '@/types/quest';
+import { Quest, UserContext, QuestDifficulty, QuestStatus, QuestCategory } from '@/types/quest';
 import { Plus, Sparkles, Brain, TrendingUp } from 'lucide-react';
 import { useQuests } from '@/contexts/QuestContext';
 import Image from 'next/image';
@@ -56,9 +56,9 @@ function QuestPageContent() {
       id: `custom_quest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: customQuestData.title,
       description: customQuestData.description,
-      category: 'side_jobs' as any, // Default to side jobs for custom quests
-      difficulty: 'medium' as any,
-      status: 'new' as any,
+      category: QuestCategory.SIDE_JOBS, // Default to side jobs for custom quests
+      difficulty: QuestDifficulty.MEDIUM,
+      status: QuestStatus.NEW,
       progress: 0,
       goal: parseInt(customQuestData.goal) || 1,
       daysLeft: parseInt(customQuestData.days) || 7,

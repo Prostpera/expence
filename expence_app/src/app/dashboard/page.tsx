@@ -20,15 +20,22 @@ import Image from 'next/image';
 import { useQuests } from '@/contexts/QuestContext';
 import { QuestStatus } from '@/types/quest';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useUserContext } from '@/components/QuestWrapper';
+import { STORY_CHAPTERS } from '@/data/storyQuests';
 
 export default function DashboardContent() {
   const { quests } = useQuests();
+  const userContext = useUserContext();
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   
   // Calculate quest counts dynamically
   const activeQuests = quests.filter(q => q.status === 'new' || q.status === 'in_progress');
-  const mainQuests = quests.filter(q => q.category === 'main_story');
   const sideQuests = quests.filter(q => q.category === 'side_jobs');
+  
+  // Calculate unlocked story chapters
+  const userLevel = userContext?.currentLevel ?? 1;
+  const unlockedStoryChapters = STORY_CHAPTERS.filter(chapter => chapter.isUnlocked(userLevel));
+  const totalStoryChapters = STORY_CHAPTERS.length;
 
   // Recently completed quests (limit 5)
   const completedQuests = quests
@@ -120,7 +127,7 @@ export default function DashboardContent() {
         </div>
         
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* STORY_QUEST card */}
+          {/* MAIN_STORY card */}
           <Link href="/dashboard/story-quest" className="block">
             <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-cyan-500 hover:bg-opacity-90 transition-all duration-300">
               {/* Rotated corner */}
@@ -130,14 +137,14 @@ export default function DashboardContent() {
               <div className="p-6">
                 <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
                   <Compass size={18} className="mr-2 text-cyan-400" />
-                  <span>STORY_QUEST</span>
+                  <span>MAIN QUESTS</span>
                 </h2>
                 <p className="mt-2 text-3xl font-bold text-cyan-400">
-                  {mainQuests.length}
+                  {unlockedStoryChapters.length}/{totalStoryChapters}
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
                   <AlertTriangle size={10} className="mr-1 text-cyan-500" />
-                  <span>MAIN STORYLINE</span>
+                  <span>MAIN QUESTLINE</span>
                 </div>
               </div>
             </div>
@@ -145,21 +152,21 @@ export default function DashboardContent() {
           
           {/* LEARNING_QUEST card */}
           <Link href="/dashboard/learning-quest" className="block">
-            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-green-500 hover:bg-opacity-90 transition-all duration-300">
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-yellow-500 hover:bg-opacity-90 transition-all duration-300">
               {/* Rotated corner */}
-              <div className="absolute top-0 right-0 w-8 h-8 bg-green-900 clip-corner-rotated"></div>
-              <div className="absolute bottom-0 left-0 w-5 h-1 bg-green-500 group-hover:w-full transition-all duration-300"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 bg-yellow-900 clip-corner-rotated"></div>
+              <div className="absolute bottom-0 left-0 w-5 h-1 bg-yellow-500 group-hover:w-full transition-all duration-300"></div>
 
               <div className="p-6">
                 <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
-                  <BarChart3 size={18} className="mr-2 text-green-400" />
-                  <span>LEARNING_QUEST</span>
+                  <Briefcase size={18} className="mr-2 text-yellow-400" />
+                  <span>CASE_LEARNING</span>
                 </h2>
-                <p className="mt-2 text-3xl font-bold text-green-400">
+                <p className="mt-2 text-3xl font-bold text-yellow-400">
                   3
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
-                  <AlertTriangle size={10} className="mr-1 text-green-500" />
+                  <AlertTriangle size={10} className="mr-1 text-yellow-500" />
                   <span>SKILL BUILDING</span>
                 </div>
               </div>
@@ -169,19 +176,19 @@ export default function DashboardContent() {
           
           {/* ACTIVE_QUESTS card */}
           <Link href="/dashboard/quests" className="block">
-            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-yellow-500 hover:bg-opacity-90 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-8 h-8 bg-yellow-900 clip-corner-rotated"></div>
-              <div className="absolute bottom-0 left-0 w-5 h-1 bg-yellow-500 group-hover:w-full transition-all duration-300"></div>
+            <div className="bg-gray-900 bg-opacity-80 shadow-lg relative overflow-hidden group border border-green-500 hover:bg-opacity-90 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-8 h-8 bg-green-900 clip-corner-rotated"></div>
+              <div className="absolute bottom-0 left-0 w-5 h-1 bg-green-500 group-hover:w-full transition-all duration-300"></div>
               <div className="p-6">
                 <h2 className="text-lg font-medium text-gray-400 flex items-center relative">
-                  <Briefcase size={18} className="mr-2 text-yellow-400" />
+                  <BarChart3 size={18} className="mr-2 text-green-400" />
                   <span>ACTIVE_QUESTS</span>
                 </h2>
-                <p className="mt-2 text-3xl font-bold text-yellow-400">
+                <p className="mt-2 text-3xl font-bold text-green-400">
                   {activeQuests.length}
                 </p>
                 <div className="mt-4 text-xs text-gray-500 flex items-center">
-                  <AlertTriangle size={10} className="mr-1 text-yellow-500" />
+                  <AlertTriangle size={10} className="mr-1 text-green-500" />
                   <span>IN PROGRESS</span>
                 </div>
               </div>
