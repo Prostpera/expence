@@ -120,9 +120,77 @@ export interface Database {
           due_date: string | null
           completion_date: string | null
           ai_generated: boolean
+          is_daily: boolean
           quest_data: any | null
           created_at: string
           updated_at: string
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: 'quest_complete' | 'level_up' | 'achievement' | 'friend_request' | 'daily_reminder' | 'system_alert'
+          title: string
+          message: string | null
+          related_id: string | null
+          is_read: boolean
+          created_at: string
+          read_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: 'quest_complete' | 'level_up' | 'achievement' | 'friend_request' | 'daily_reminder' | 'system_alert'
+          title: string
+          message?: string | null
+          related_id?: string | null
+          is_read?: boolean
+          created_at?: string
+          read_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: 'quest_complete' | 'level_up' | 'achievement' | 'friend_request' | 'daily_reminder' | 'system_alert'
+          title?: string
+          message?: string | null
+          related_id?: string | null
+          is_read?: boolean
+          created_at?: string
+          read_at?: string | null
+        }
+      }
+      daily_quest_completions: {
+        Row: {
+          id: string
+          user_id: string
+          quest_id: string
+          completed_date: string
+          completed_at: string
+          exp_earned: number
+          streak_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          quest_id: string
+          completed_date: string
+          completed_at?: string
+          exp_earned?: number
+          streak_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          quest_id?: string
+          completed_date?: string
+          completed_at?: string
+          exp_earned?: number
+          streak_count?: number
+          created_at?: string
         }
       }
     }
@@ -132,3 +200,5 @@ export interface Database {
 export type User = Database['public']['Tables']['users']['Row']
 export type FinancialGoal = Database['public']['Tables']['financial_goals']['Row']
 export type Quest = Database['public']['Tables']['quests']['Row']
+export type Notification = Database['public']['Tables']['notifications']['Row']
+export type DailyQuestCompletion = Database['public']['Tables']['daily_quest_completions']['Row']
