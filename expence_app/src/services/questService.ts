@@ -55,6 +55,7 @@ export class QuestService {
       description,
       category: template.category,
       difficulty: template.difficulty,
+      priority: template.priority, // Add priority from template
       status: QuestStatus.NEW,
       progress: 0,
       goal: this.calculateGoalFromTemplate(template, variables),
