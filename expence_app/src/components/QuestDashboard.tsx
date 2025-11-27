@@ -10,6 +10,7 @@ import {
 } from '../types/quest';
 import { useQuests } from '../contexts/QuestContext';
 import QuestCard from './QuestCard';
+import QuestCalendar from './QuestCalendar';
 import DeleteQuestModal from './DeleteQuestModal';
 import { 
   Plus, 
@@ -20,7 +21,9 @@ import {
   Briefcase,
   Sparkles,
   RefreshCw,
-  ArrowLeft
+  ArrowLeft,
+  Calendar,
+  List
 } from 'lucide-react';
 import { useUserContext } from './QuestWrapper';
 
@@ -51,6 +54,8 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [questToDelete, setQuestToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  // Calendar view state - adapted from Class Advisor's view switching
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
     console.log('QuestDashboard - quests updated:', quests);
@@ -193,6 +198,32 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
+          {/* View Mode Toggle */}
+          <div className="flex bg-gray-800 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-3 py-1 text-sm rounded transition-all ${
+                viewMode === 'list' 
+                  ? 'bg-cyan-600 text-white shadow-lg' 
+                  : 'text-gray-300 hover:text-white hover:bg-gray-700'
+              }`}
+            >
+              <List size={14} />
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`flex items-center gap-2 px-3 py-1 text-sm rounded transition-all ${
+                viewMode === 'calendar' 
+                  ? 'bg-cyan-600 text-white shadow-lg' 
+                  : 'text-gray-300 hover:text-white hover:bg-gray-700'
+              }`}
+            >
+              <Calendar size={14} />
+              Calendar
+            </button>
+          </div>
+          
           <button
             onClick={onGenerateAIQuest}
             disabled={loading}
@@ -216,7 +247,8 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
       </div>
 
       {/* Status Filter */}
-      <div className="flex gap-2 mb-6">
+      {viewMode === 'list' && (
+        <div className="flex gap-2 mb-6">
         <button
           onClick={() => setStatusFilter('active')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
@@ -238,10 +270,12 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         >
           Completed ({getStatusCount('completed')})
         </button>
-      </div>
+        </div>
+      )}
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      {viewMode === 'list' && (
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
@@ -283,58 +317,69 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Quest Categories */}
-      {activeCategory === 'all' ? (
-        <div className="space-y-8">
-          {Object.values(QuestCategory).map((category) => {
-            const categoryQuests = getQuestsByCategory(category);
-            if (categoryQuests.length === 0) return null;
-
-            return (
-              <div key={category}>
-                <div className="flex items-center gap-3 mb-4">
-                  {getCategoryIcon(category)}
-                  <h2 className="text-xl font-bold text-white">
-                    {getCategoryDisplayName(category)}
-                  </h2>
-                  <span className="text-sm text-gray-400">
-                    ({categoryQuests.length})
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryQuests.map((quest) => (
-                    <QuestCard
-                      key={quest.id}
-                      quest={quest}
-                      onStart={handleStartQuest}
-                      onComplete={handleCompleteQuest}
-                      onPause={handlePauseQuest}
-                      onDelete={handleDeleteQuest}
-                      onViewDetails={(questId) => console.log('View details:', questId)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
         </div>
+      )}
+
+      {/* Quest View */}
+      {viewMode === 'calendar' ? (
+        <QuestCalendar 
+          quests={filteredQuests} 
+          onQuestClick={(quest) => console.log('Calendar quest clicked:', quest.id)}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredQuests.map((quest) => (
-            <QuestCard
-              key={quest.id}
-              quest={quest}
-              onStart={handleStartQuest}
-              onComplete={handleCompleteQuest}
-              onPause={handlePauseQuest}
-              onDelete={handleDeleteQuest}
-              onViewDetails={(questId) => console.log('View details:', questId)}
-            />
-          ))}
-        </div>
+        <>
+          {/* Quest Categories */}
+          {activeCategory === 'all' ? (
+            <div className="space-y-8">
+              {Object.values(QuestCategory).map((category) => {
+                const categoryQuests = getQuestsByCategory(category);
+                if (categoryQuests.length === 0) return null;
+
+                return (
+                  <div key={category}>
+                    <div className="flex items-center gap-3 mb-4">
+                      {getCategoryIcon(category)}
+                      <h2 className="text-xl font-bold text-white">
+                        {getCategoryDisplayName(category)}
+                      </h2>
+                      <span className="text-sm text-gray-400">
+                        ({categoryQuests.length})
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {categoryQuests.map((quest) => (
+                        <QuestCard
+                          key={quest.id}
+                          quest={quest}
+                          onStart={handleStartQuest}
+                          onComplete={handleCompleteQuest}
+                          onPause={handlePauseQuest}
+                          onDelete={handleDeleteQuest}
+                          onViewDetails={(questId) => console.log('View details:', questId)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredQuests.map((quest) => (
+                <QuestCard
+                  key={quest.id}
+                  quest={quest}
+                  onStart={handleStartQuest}
+                  onComplete={handleCompleteQuest}
+                  onPause={handlePauseQuest}
+                  onDelete={handleDeleteQuest}
+                  onViewDetails={(questId) => console.log('View details:', questId)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Empty State */}
