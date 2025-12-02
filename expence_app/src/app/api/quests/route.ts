@@ -42,7 +42,6 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
 
-    console.log('Fetching quests for user:', user.id);
     const quests = await userQuestService.getUserQuests(
       user.id, 
       status as any

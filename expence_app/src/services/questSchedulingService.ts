@@ -2,7 +2,6 @@ import {
   Quest, 
   QuestSchedule, 
   QuestPreferences, 
-  QuestPriority,
   QuestStatus
 } from '../types/quest';
 
@@ -45,13 +44,13 @@ export class QuestSchedulingService {
   
   private static sortQuestsByPriorityAndDate(quests: Quest[]): Quest[] {
     return quests.sort((a, b) => {
-      // Priority first (like course requirements)
-      const priorityOrder = { 'urgent': 0, 'high': 1, 'medium': 2, 'low': 3 };
-      const aPriorityScore = priorityOrder[a.priority] ?? 3;
-      const bPriorityScore = priorityOrder[b.priority] ?? 3;
+      // Category first (main_story > important > side_jobs)
+      const categoryOrder = { 'main_story': 0, 'important': 1, 'side_jobs': 2 };
+      const aCategoryScore = categoryOrder[a.category] ?? 2;
+      const bCategoryScore = categoryOrder[b.category] ?? 2;
       
-      if (aPriorityScore !== bPriorityScore) {
-        return aPriorityScore - bPriorityScore;
+      if (aCategoryScore !== bCategoryScore) {
+        return aCategoryScore - bCategoryScore;
       }
       
       // Then by target date (chronological order)
@@ -161,14 +160,12 @@ export class QuestSchedulingService {
   }
   
   private static getDefaultDayForQuest(quest: Quest): string {
-    switch (quest.priority) {
-      case QuestPriority.URGENT:
+    switch (quest.category) {
+      case 'main_story':
         return 'Monday'; // Start week strong
-      case QuestPriority.HIGH:
+      case 'important':
         return 'Tuesday';
-      case QuestPriority.MEDIUM:
-        return 'Wednesday';
-      case QuestPriority.LOW:
+      case 'side_jobs':
         return 'Friday'; // End week tasks
       default:
         return 'Monday';

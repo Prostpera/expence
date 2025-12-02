@@ -34,7 +34,6 @@ function QuestPageContent() {
 
   const handleQuestGenerated = (quest: Quest) => {
     addQuest(quest);
-    console.log('Quest added to context:', quest.title);
   };
 
   const handleCreateCustomQuest = () => {
@@ -74,7 +73,6 @@ function QuestPageContent() {
     addQuest(customQuest);
     setIsCustomModalOpen(false);
     setCustomQuestData({ title: '', description: '', goal: '', days: '' });
-    console.log('Custom quest created:', customQuest.title);
   };
   
   const { signOut } = useAuth();
