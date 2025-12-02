@@ -59,8 +59,6 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
-    console.log('QuestDashboard - quests updated:', quests);
-    console.log('QuestDashboard - quests length:', quests.length);
     filterQuests();
   }, [quests, activeCategory, searchTerm, statusFilter]); 
 
@@ -325,7 +323,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
       {viewMode === 'calendar' ? (
         <QuestCalendar 
           quests={filteredQuests} 
-          onQuestClick={(quest) => console.log('Calendar quest clicked:', quest.id)}
+          onQuestClick={(quest) => {/* Quest clicked handler */}}
           onQuestComplete={handleCompleteQuest}
           onQuestUpdate={async (updatedQuest) => {
             // Use the updateQuest function from QuestContext to update database
@@ -362,7 +360,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
                           onComplete={handleCompleteQuest}
                           onPause={handlePauseQuest}
                           onDelete={handleDeleteQuest}
-                          onViewDetails={(questId) => console.log('View details:', questId)}
+                          onViewDetails={(questId) => {/* View details handler */}}
                         />
                       ))}
                     </div>
@@ -380,7 +378,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
                   onComplete={handleCompleteQuest}
                   onPause={handlePauseQuest}
                   onDelete={handleDeleteQuest}
-                  onViewDetails={(questId) => console.log('View details:', questId)}
+                  onViewDetails={(questId) => {/* View details handler */}}
                 />
               ))}
             </div>

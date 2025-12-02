@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Quest, QuestPriority } from '../types/quest';
+import { Quest, QuestStatus } from '../types/quest';
 import { QuestSchedulingService } from '../services/questSchedulingService';
 import { Calendar, Clock, AlertTriangle, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -230,7 +230,6 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
         return newExpanded;
       });
       
-      console.log(`Daily/weekly task instance completed: ${questId}. Original quest: ${originalQuestId}`);
       
       // Check if all daily/weekly instances are now complete
       const allInstances = expandedQuests.filter(eq => 
@@ -242,7 +241,6 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
       
       // If all daily instances are complete, auto-complete the original quest
       if (allInstances.length > 0 && completedInstances.length >= allInstances.length) {
-        console.log(`All daily instances complete! Auto-completing original quest: ${originalQuestId}`);
         if (onQuestComplete) {
           setTimeout(() => {
             // Delay slightly to allow local state update first
@@ -252,7 +250,6 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
       }
     } else {
       // For original quests, call the proper completion handler that updates database
-      console.log(`Completing original quest: ${questId}`);
       
       // This will update the database and sync across all views
       if (onQuestComplete) {
@@ -278,7 +275,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
           ...questToUpdate,
           progress: newProgress,
           // Auto-complete if progress reaches goal
-          status: newProgress >= questToUpdate.goal ? 'completed' as const : questToUpdate.status
+          status: newProgress >= questToUpdate.goal ? QuestStatus.COMPLETED : questToUpdate.status
         };
         await onQuestUpdate(updatedQuest);
         
@@ -817,7 +814,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                             ></div>
                           </div>
                           <p className="text-xs text-gray-400 mt-2">
-                            Complete daily tasks for progress, or use "Complete Quest" to finish immediately
+                            Complete daily tasks for progress, or use &quot;Complete Quest&quot; to finish immediately
                           </p>
                         </>
                       );

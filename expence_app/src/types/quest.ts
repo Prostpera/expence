@@ -46,7 +46,6 @@ export interface Quest {
   subquests?: SubQuest[];
   schedule?: QuestSchedule;
   targetDate?: Date; // When user wants to complete this quest
-  priority: QuestPriority; // For chronological organization
 }
 
 export enum QuestCategory {
@@ -69,12 +68,6 @@ export enum QuestStatus {
   EXPIRED = 'expired'
 }
 
-export enum QuestPriority {
-  LOW = 'low',
-  MEDIUM = 'medium', 
-  HIGH = 'high',
-  URGENT = 'urgent'
-}
 
 export interface UserContext {
   financialGoals: string[];
@@ -99,7 +92,6 @@ export interface QuestTemplate {
   title: string;
   description: string;
   difficulty: QuestDifficulty;
-  priority: QuestPriority; // For chronological organization
   baseExpReward: number;
   baseCoinReward: number;
   estimatedDays: number;
@@ -119,7 +111,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Create Your Emergency Fund Foundation',
     description: 'Start building financial security by saving $${amount} for unexpected expenses.',
     difficulty: QuestDifficulty.EASY,
-    priority: QuestPriority.HIGH,
     baseExpReward: 100,
     baseCoinReward: 50,
     estimatedDays: 7,
@@ -132,7 +123,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Master the Art of Budgeting',
     description: 'Track every expense for ${days} days to understand your spending patterns.',
     difficulty: QuestDifficulty.MEDIUM,
-    priority: QuestPriority.HIGH,
     baseExpReward: 150,
     baseCoinReward: 75,
     estimatedDays: 14,
@@ -146,7 +136,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Debt Destroyer Challenge',
     description: 'Pay off $${amount} in debt using the snowball or avalanche method.',
     difficulty: QuestDifficulty.HARD,
-    priority: QuestPriority.URGENT,
     baseExpReward: 300,
     baseCoinReward: 150,
     estimatedDays: 30,
@@ -162,7 +151,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Investment Explorer',
     description: 'Research and make your first investment of $${amount} in an index fund.',
     difficulty: QuestDifficulty.MEDIUM,
-    priority: QuestPriority.MEDIUM,
     baseExpReward: 200,
     baseCoinReward: 100,
     estimatedDays: 10,
@@ -175,7 +163,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Credit Score Guardian',
     description: 'Check your credit score and improve it by ${points} points through strategic actions.',
     difficulty: QuestDifficulty.MEDIUM,
-    priority: QuestPriority.HIGH,
     baseExpReward: 180,
     baseCoinReward: 90,
     estimatedDays: 21,
@@ -188,7 +175,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Subscription Audit Mission',
     description: 'Cancel ${count} unused subscriptions to save $${savings} per month.',
     difficulty: QuestDifficulty.EASY,
-    priority: QuestPriority.MEDIUM,
     baseExpReward: 120,
     baseCoinReward: 60,
     estimatedDays: 3,
@@ -203,7 +189,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Coffee Challenge',
     description: 'Skip buying coffee for ${days} days and brew at home instead.',
     difficulty: QuestDifficulty.EASY,
-    priority: QuestPriority.LOW,
     baseExpReward: 50,
     baseCoinReward: 25,
     estimatedDays: 7,
@@ -216,7 +201,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Meal Prep Master',
     description: 'Prepare ${meals} meals at home this week instead of ordering takeout.',
     difficulty: QuestDifficulty.EASY,
-    priority: QuestPriority.LOW,
     baseExpReward: 60,
     baseCoinReward: 30,
     estimatedDays: 7,
@@ -229,7 +213,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Side Hustle Starter',
     description: 'Earn an extra $${amount} this month through a side gig or selling items.',
     difficulty: QuestDifficulty.MEDIUM,
-    priority: QuestPriority.MEDIUM,
     baseExpReward: 100,
     baseCoinReward: 50,
     estimatedDays: 30,
@@ -242,7 +225,6 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     title: 'Financial Education Scholar',
     description: 'Read ${count} financial articles or watch educational videos this week.',
     difficulty: QuestDifficulty.EASY,
-    priority: QuestPriority.LOW,
     baseExpReward: 40,
     baseCoinReward: 20,
     estimatedDays: 7,

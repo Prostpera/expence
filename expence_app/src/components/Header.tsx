@@ -5,6 +5,8 @@ import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, S
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
+import NotificationPanel from './NotificationPanel';
+import { useNotifications } from '../hooks/useNotifications';
 
 // Dummy notification data
 const DUMMY_NOTIFICATIONS = [
@@ -149,14 +151,9 @@ export default function Header({ onSignOut }: HeaderProps) {
 
   const handleSignOut = async () => {
     try {
-      console.log('Sign out clicked');
-
       if (onSignOut) {
-        console.log('Calling onSignOut');
         await onSignOut();
       }
-
-      console.log('Redirecting to /');
       // The AuthProvider will handle clearing storage and redirecting
       window.location.replace('/');
     } catch (error) {
