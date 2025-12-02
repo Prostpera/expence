@@ -44,6 +44,7 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
     completeQuest, 
     pauseQuest, 
     removeQuest,
+    updateQuest,
     generateInitialQuests 
   } = useQuests();
   
@@ -325,6 +326,11 @@ const QuestDashboard: React.FC<QuestDashboardProps> = ({
         <QuestCalendar 
           quests={filteredQuests} 
           onQuestClick={(quest) => console.log('Calendar quest clicked:', quest.id)}
+          onQuestComplete={handleCompleteQuest}
+          onQuestUpdate={async (updatedQuest) => {
+            // Use the updateQuest function from QuestContext to update database
+            await updateQuest(updatedQuest.id, updatedQuest);
+          }}
         />
       ) : (
         <>
