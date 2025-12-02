@@ -5,8 +5,6 @@ import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, S
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
-import NotificationPanel from './NotificationPanel';
-import { useNotifications } from '../hooks/useNotifications';
 
 // Dummy notification data
 const DUMMY_NOTIFICATIONS = [
