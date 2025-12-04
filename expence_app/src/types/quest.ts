@@ -6,6 +6,24 @@ export interface SubQuest {
   progress: number;
   goal: number;
 }
+
+// Calendar scheduling interface
+export interface QuestSchedule {
+  id: string;
+  questId: string;
+  dayOfWeek: string; // 'Monday', 'Tuesday', etc.
+  startTime: string; // '09:00'
+  endTime: string; // '10:00'  
+  recurrence: 'daily' | 'weekly' | 'monthly' | 'custom';
+  reminderEnabled: boolean;
+}
+
+export interface QuestPreferences {
+  preferredDays: string[]; // ['Monday', 'Wednesday', 'Friday']
+  preferredTimeSlots: string[]; // ['morning', 'afternoon', 'evening']
+  maxQuestsPerDay: number;
+  autoSchedule: boolean;
+}
 export interface Quest {
   id: string;
   title: string;
@@ -26,6 +44,8 @@ export interface Quest {
   isAIGenerated: boolean;
   userContext?: UserContext;
   subquests?: SubQuest[];
+  schedule?: QuestSchedule;
+  targetDate?: Date; // When user wants to complete this quest
 }
 
 export enum QuestCategory {
@@ -48,6 +68,7 @@ export enum QuestStatus {
   EXPIRED = 'expired'
 }
 
+
 export interface UserContext {
   financialGoals: string[];
   currentLevel: number;
@@ -62,6 +83,7 @@ export interface UserContext {
     income?: number;
     educationLevel: string;
   };
+  questPreferences?: QuestPreferences;
 }
 
 export interface QuestTemplate {

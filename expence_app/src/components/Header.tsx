@@ -149,14 +149,9 @@ export default function Header({ onSignOut }: HeaderProps) {
 
   const handleSignOut = async () => {
     try {
-      console.log('Sign out clicked');
-
       if (onSignOut) {
-        console.log('Calling onSignOut');
         await onSignOut();
       }
-
-      console.log('Redirecting to /');
       // The AuthProvider will handle clearing storage and redirecting
       window.location.replace('/');
     } catch (error) {
