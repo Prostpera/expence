@@ -185,7 +185,7 @@ export default function Header({ onSignOut }: HeaderProps) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="relative px-3 py-1 text-cyan-400 group overflow-hidden bg-cyan-500 border border-cyan-900 bg-opacity-15 hover:bg-opacity-50 transition-all"
+              className="relative px-3 py-1 text-cyan-400 group overflow-visible bg-cyan-500 border border-cyan-900 bg-opacity-15 hover:bg-opacity-50 transition-all"
             >
               <div className="relative flex items-center">
                 <Bell size={14} className="mr-1" />
