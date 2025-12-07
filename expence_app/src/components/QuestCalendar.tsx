@@ -340,7 +340,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
     
     return (
       <div
-        className={`${compact ? 'p-1' : 'p-2'} rounded border-l-2 cursor-grab transition-all duration-200 hover:scale-105 hover:shadow-lg ${getCategoryColor(quest.category)} mb-1 text-xs ${isCompleted ? 'opacity-60' : ''}`}
+        className={`${compact ? 'p-1' : 'p-2'} rounded border-l-2 cursor-grab transition-all duration-200 hover:scale-110 hover:shadow-lg ${getCategoryColor(quest.category)} mb-1 text-xs ${isCompleted ? 'opacity-60' : ''}`}
         draggable={!isCompleted}
         onDragStart={(e) => {
           if (!isCompleted) {
@@ -445,7 +445,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
               return (
                 <div
                   key={index}
-                  className={`min-h-20 p-1 border border-gray-600 rounded transition-all hover:bg-gray-700 ${
+                  className={`min-h-20 p-1 border border-gray-600 rounded overflow-hidden transition-colors hover:bg-gray-700 ${
                     isCurrentDay 
                       ? 'bg-cyan-900 border-cyan-500' 
                       : isInCurrentMonth 
@@ -484,7 +484,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                       </span>
                     )}
                   </div>
-                  <div className="space-y-1 max-h-16 overflow-y-auto">
+                  <div className="space-y-1 px-2 max-h-16 flex flex-col overflow-y-auto overflow-x-hidden">
                     {dayQuests.slice(0, 2).map((quest) => (
                       <QuestCard key={quest.id} quest={quest} compact={true} />
                     ))}
@@ -522,12 +522,32 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
           const isCurrentDay = isToday(date);
           
           return (
-            <div key={index} className={`bg-gray-800 rounded-lg p-3 border ${isCurrentDay ? 'border-cyan-500' : 'border-gray-700'}`}>
+            <div 
+              key={index} className={`bg-gray-800 rounded-lg p-3 border ${
+              isCurrentDay ? 'border-cyan-500' : 'border-gray-700'}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const questId = e.dataTransfer.getData('questId');
+                if (questId) {
+                  moveQuestToDate(questId, date);
+                }
+              }}
+              onDragEnter={(e) => {
+                e.currentTarget.classList.add('ring-2', 'ring-cyan-400');
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove('ring-2', 'ring-cyan-400');
+              }}
+            >  
               <h3 className={`font-bold text-center mb-3 pb-2 border-b border-gray-600 ${isCurrentDay ? 'text-cyan-300' : 'text-white'}`}>
                 <div className="text-sm">{daysOfWeek[index]}</div>
                 <div className="text-lg">{date.getDate()}</div>
               </h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-96 overflow-visible">
                 {dayQuests.length > 0 ? (
                   dayQuests.map((quest) => (
                     <QuestCard key={quest.id} quest={quest} />
