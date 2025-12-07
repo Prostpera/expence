@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, Star } from 'lucide-react';
+import { LogOut, LayoutDashboard, Bell, Trophy, TrendingUp, AlertCircle, Gift, Star, Menu, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from './auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
@@ -77,6 +77,7 @@ export default function Header({ onSignOut }: HeaderProps) {
   const [userLevel, setUserLevel] = useState(1);
   const [username, setUsername] = useState('USER_42X');
   const [expToNextLevel, setExpToNextLevel] = useState(0);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -165,27 +166,39 @@ export default function Header({ onSignOut }: HeaderProps) {
     <header className="bg-gray-900 shadow-md relative z-20 border-b border-purple-900">
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 via-cyan-500 to-purple-600"></div>
       
-      <div className="mx-auto w-full px-4 py-3 flex items-center justify-between">
-        {/* User Info */}
-        <div className="flex flex-col">
+      <div className="mx-auto w-full px-4 py-3 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-6 w-full">
+          {/* User Info */}
+          <div className="flex flex-col">
           <div className="text-white font-medium text-sm">{username}</div>
           <div className="text-xs text-cyan-400">LEVEL {userLevel}</div>
         </div>
 
-        {/* EXP to Next Level */}
-        <div className="cyber-border cyber-border-blue flex items-center bg-gray-800 bg-opacity-80 px-2 py-1 border border-blue-700 relative">
-          <span className="text-blue-400 font-bold mr-1">🔋</span>
-          <span className="text-blue-400 font-medium">{expToNextLevel.toLocaleString()}</span>
-          <span className="text-blue-300 font-light text-xs ml-1">EXP TO NEXT LVL</span>
+          {/* EXP to Next Level */}
+          <div className="cyber-border cyber-border-blue flex items-center bg-gray-800 bg-opacity-80 px-3 py-2 border border-blue-700 relative rounded w-full sm:w-auto sm:justify-center gap-2">
+            <span className="text-blue-400 font-bold">🔋</span>
+            <span className="text-blue-400 font-medium">{expToNextLevel.toLocaleString()}</span>
+            <span className="text-blue-300 font-light text-xs">EXP TO NEXT LVL</span>
+          </div>
         </div>
 
+        {/* Mobile Nav Toggle */}
+        <button
+          type="button"
+          onClick={() => setIsNavOpen(prev => !prev)}
+          className="flex items-center justify-between w-full rounded border border-gray-700 px-4 py-2 text-xs text-gray-200 lg:hidden"
+        >
+          <span>NAVIGATION</span>
+          {isNavOpen ? <X size={16} /> : <Menu size={16} />}
+        </button>
+
         {/* Navigation Buttons */}
-        <div className="flex items-center space-x-2">
+        <div className={`${isNavOpen ? 'flex' : 'hidden'} flex-col sm:flex-row flex-wrap items-center gap-2 justify-between sm:justify-end w-full lg:flex`}>
           {/* Notifications Button */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative w-full sm:w-auto" ref={dropdownRef}>
             <button
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="relative px-3 py-1 text-cyan-400 group overflow-hidden bg-cyan-500 border border-cyan-900 bg-opacity-15 hover:bg-opacity-50 transition-all"
+              className="relative px-3 py-2 text-cyan-400 group overflow-hidden bg-cyan-500 border border-cyan-900 bg-opacity-15 hover:bg-opacity-50 transition-all w-full sm:w-auto"
             >
               <div className="relative flex items-center">
                 <Bell size={14} className="mr-1" />
@@ -200,7 +213,7 @@ export default function Header({ onSignOut }: HeaderProps) {
 
             {/* Notifications Dropdown */}
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-gray-900 border border-cyan-500 shadow-lg max-h-96 overflow-y-auto z-50">
+              <div className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-80 bg-gray-900 border border-cyan-500 shadow-lg max-h-96 overflow-y-auto z-50">
                 {/* Header */}
                 <div className="p-3 border-b border-cyan-700 flex items-center justify-between bg-gray-800">
                   <div className="flex items-center">
@@ -270,7 +283,7 @@ export default function Header({ onSignOut }: HeaderProps) {
           </div>
 
           {/* Dashboard Button */}
-          <Link href="/dashboard" className="relative px-3 py-1 text-purple-400 group overflow-hidden bg-purple-500 border border-purple-900 bg-opacity-15 hover:bg-opacity-50">
+          <Link href="/dashboard" className="relative px-3 py-2 text-purple-400 group overflow-hidden bg-purple-500 border border-purple-900 bg-opacity-15 hover:bg-opacity-50 w-full sm:w-auto text-center">
             <div className="relative flex items-center">
               <LayoutDashboard size={14} className="mr-1" />
               <span className="text-xs">DASH</span>
@@ -281,7 +294,7 @@ export default function Header({ onSignOut }: HeaderProps) {
           <button
             onClick={handleSignOut}
             type="button"
-            className="relative px-3 py-1 text-red-400 group overflow-hidden bg-gray-800 border border-red-900 hover:bg-red-900 hover:bg-opacity-30 transition-all duration-300"
+            className="relative px-3 py-2 text-red-400 group overflow-hidden bg-gray-800 border border-red-900 hover:bg-red-900 hover:bg-opacity-30 transition-all duration-300 w-full sm:w-auto"
           >
             <div className="absolute bottom-0 left-0 w-5 h-1 bg-red-500 group-hover:w-full transition-all duration-300"></div>
             <div className="relative flex items-center">
