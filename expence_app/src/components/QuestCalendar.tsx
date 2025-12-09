@@ -27,6 +27,9 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
   const [expandedQuests, setExpandedQuests] = useState<Quest[]>([]);
   const [editingProgress, setEditingProgress] = useState(false);
   const [tempProgress, setTempProgress] = useState<number>(0);
+  const [showAll, setShowAll] = useState(false);
+  const [modalQuests, setModalQuests] = useState<Quest[]>([]);
+
 
   // Reset editing state when quest changes
   useEffect(() => {
@@ -350,6 +353,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
         }}
         onClick={(e) => {
           e.stopPropagation();
+          setShowAll(false)
           setSelectedQuest(quest);
         }}
         title={`${quest.title} - Click for details, drag to reschedule`}
@@ -489,9 +493,15 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                       <QuestCard key={quest.id} quest={quest} compact={true} />
                     ))}
                     {dayQuests.length > 2 && (
-                      <div className="text-xs text-gray-400 text-center bg-gray-700 rounded px-1">
+                      <button 
+                        onClick={() => {
+                          setShowAll(true)
+                          setModalQuests(dayQuests);
+                        }}
+                        
+                        className="text-xs text-gray-400 text-center hover:scale-110 hover:underline rounded px-1 transition transform">
                         +{dayQuests.length - 2} more
-                      </div>
+                      </button> 
                     )}
                   </div>
                 </div>
@@ -920,6 +930,26 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* All Quests Modal */}
+      {showAll && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-gray-900 border border-orange-500 p-6 rounded-lg w-[90%] max-w-lg text-white h-auto max-h-[80vh]">
+            <h2 className="text-xl font-bold">All Quests</h2>
+
+            <div className="space-1 p-3 h-auto flex flex-col overflow-visible">
+              {
+              modalQuests.map((quest) => (
+                <QuestCard key={quest.id} quest={quest} compact={true} />
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowAll(false)}
+              className="mt-3 py-1 text-sm text-red-400 hover:text-red-300 underline text-center"> Close
+            </button>
           </div>
         </div>
       )}
