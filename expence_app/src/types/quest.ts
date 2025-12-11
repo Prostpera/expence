@@ -113,7 +113,7 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     difficulty: QuestDifficulty.EASY,
     baseExpReward: 100,
     baseCoinReward: 50,
-    estimatedDays: 7,
+    estimatedDays: 5,
     tags: ['savings', 'emergency_fund', 'beginner'],
     variables: { amount: 100 }
   },
@@ -125,10 +125,10 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     difficulty: QuestDifficulty.MEDIUM,
     baseExpReward: 150,
     baseCoinReward: 75,
-    estimatedDays: 14,
+    estimatedDays: 21,
     tags: ['budgeting', 'tracking', 'awareness'],
     prerequisites: ['main_001'],
-    variables: { days: 14 }
+    variables: { days: 21 }
   },
   {
     id: 'main_003',
@@ -138,10 +138,10 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     difficulty: QuestDifficulty.HARD,
     baseExpReward: 300,
     baseCoinReward: 150,
-    estimatedDays: 30,
+    estimatedDays: 90,
     tags: ['debt', 'payoff', 'strategy'],
     prerequisites: ['main_001', 'main_002'],
-    variables: { amount: 500 }
+    variables: { amount: 2000 }
   },
 
   // Important Quests
@@ -191,9 +191,9 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     difficulty: QuestDifficulty.EASY,
     baseExpReward: 50,
     baseCoinReward: 25,
-    estimatedDays: 7,
+    estimatedDays: 5,
     tags: ['savings', 'habits', 'daily'],
-    variables: { days: 7 }
+    variables: { days: 5 }
   },
   {
     id: 'side_002',
@@ -227,7 +227,7 @@ export const QUEST_TEMPLATES: QuestTemplate[] = [
     difficulty: QuestDifficulty.EASY,
     baseExpReward: 40,
     baseCoinReward: 20,
-    estimatedDays: 7,
+    estimatedDays: 5,
     tags: ['education', 'learning', 'knowledge'],
     variables: { count: 3 }
   }
