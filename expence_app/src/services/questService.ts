@@ -50,7 +50,7 @@ export class QuestService {
     );
 
     return {
-      id: `quest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `quest_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       title,
       description,
       category: template.category,

@@ -77,8 +77,13 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
         );
         quests = [customQuest];
       } else {
-        // Generate batch of AI quests
-        quests = await aiQuestGenerator.generateQuestBatch(userContext, 3);
+        // Generate batch of AI quests with user preferences
+        quests = await aiQuestGenerator.generateQuestBatch(
+          userContext, 
+          3,
+          selectedCategory as QuestCategory || undefined,
+          selectedDifficulty as QuestDifficulty || undefined
+        );
       }
       
       // Validate each quest
