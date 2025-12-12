@@ -237,7 +237,7 @@ Return ONLY this JSON format:
   "category": "main_story|important|side_jobs",
   "difficulty": "easy|medium|hard",
   "tags": ["relevant", "tags", "for_goal"],
-  "estimatedDays": realistic_number_of_days_needed,
+  "estimatedDays": realistic_timeframe_based_on_difficulty_easy_3_7_medium_14_30_hard_30_90,
   "goal": target_amount_or_measurable_metric,
   "expReward": number_between_50_and_500_based_on_difficulty,
   "coinReward": number_between_25_and_250_based_on_difficulty
@@ -263,40 +263,51 @@ Make it specific to their request and achievable for their profile!`;
 
     // Detect intent and create appropriate quest
     if (promptLower.includes('save') || promptLower.includes('saving')) {
+      const difficulty = targetAmount > 1000 ? QuestDifficulty.HARD : targetAmount > 200 ? QuestDifficulty.MEDIUM : QuestDifficulty.EASY;
+      const estimatedDays = difficulty === QuestDifficulty.EASY ? 7 : 
+                          difficulty === QuestDifficulty.MEDIUM ? 21 : 60;
+      
       questTemplate = {
         title: `Save for ${userPrompt.split(' ').slice(-2).join(' ')}`,
-        description: `Save ${targetAmount} by setting aside money weekly and tracking your progress.`,
+        description: `Save $${targetAmount} by setting aside money weekly and tracking your progress.`,
         category: QuestCategory.IMPORTANT,
-        difficulty: targetAmount > 500 ? QuestDifficulty.HARD : targetAmount > 100 ? QuestDifficulty.MEDIUM : QuestDifficulty.EASY,
+        difficulty,
         tags: ['savings', 'goal', 'planning'],
-        estimatedDays: Math.max(7, Math.min(90, Math.floor(targetAmount / 10))),
+        estimatedDays,
         goal: targetAmount,
-        expReward: Math.floor(targetAmount / 2) + 50,
-        coinReward: Math.floor(targetAmount / 4) + 25
+        expReward: Math.floor(targetAmount / 2) + (difficulty === QuestDifficulty.HARD ? 200 : difficulty === QuestDifficulty.MEDIUM ? 100 : 50),
+        coinReward: Math.floor(targetAmount / 4) + (difficulty === QuestDifficulty.HARD ? 100 : difficulty === QuestDifficulty.MEDIUM ? 50 : 25)
       };
     } else if (promptLower.includes('pay off') || promptLower.includes('debt')) {
+      const difficulty = targetAmount > 1500 ? QuestDifficulty.HARD : targetAmount > 500 ? QuestDifficulty.MEDIUM : QuestDifficulty.EASY;
+      const estimatedDays = difficulty === QuestDifficulty.EASY ? 14 : 
+                          difficulty === QuestDifficulty.MEDIUM ? 45 : 90;
+      
       questTemplate = {
         title: `Debt Elimination Quest`,
-        description: `Pay off ${targetAmount} in debt using strategic payments and budget optimization.`,
+        description: `Pay off $${targetAmount} in debt using strategic payments and budget optimization.`,
         category: QuestCategory.MAIN_QUESTS,
-        difficulty: QuestDifficulty.HARD,
+        difficulty,
         tags: ['debt', 'payoff', 'budgeting'],
-        estimatedDays: Math.max(14, Math.min(180, Math.floor(targetAmount / 20))),
+        estimatedDays,
         goal: targetAmount,
-        expReward: Math.floor(targetAmount / 1.5) + 100,
-        coinReward: Math.floor(targetAmount / 3) + 50
+        expReward: Math.floor(targetAmount / 1.5) + (difficulty === QuestDifficulty.HARD ? 200 : difficulty === QuestDifficulty.MEDIUM ? 100 : 50),
+        coinReward: Math.floor(targetAmount / 3) + (difficulty === QuestDifficulty.HARD ? 100 : difficulty === QuestDifficulty.MEDIUM ? 50 : 25)
       };
     } else if (promptLower.includes('invest') || promptLower.includes('investment')) {
+      const difficulty = targetAmount > 1000 ? QuestDifficulty.HARD : QuestDifficulty.MEDIUM;
+      const estimatedDays = difficulty === QuestDifficulty.HARD ? 60 : 21;
+      
       questTemplate = {
         title: `Investment Journey Quest`,
-        description: `Start investing with ${targetAmount} after researching and choosing appropriate investments.`,
+        description: `Start investing with $${targetAmount} after researching and choosing appropriate investments.`,
         category: QuestCategory.IMPORTANT,
-        difficulty: QuestDifficulty.MEDIUM,
+        difficulty,
         tags: ['investing', 'research', 'growth'],
-        estimatedDays: 21,
+        estimatedDays,
         goal: targetAmount,
-        expReward: 200,
-        coinReward: 100
+        expReward: difficulty === QuestDifficulty.HARD ? 300 : 200,
+        coinReward: difficulty === QuestDifficulty.HARD ? 150 : 100
       };
     } else {
       // Generic financial goal
@@ -422,9 +433,9 @@ QUEST CATEGORIES:
 - side_jobs: Daily habits and quick wins (expense tracking, small savings challenges)
 
 DIFFICULTY LEVELS:
-- easy: Simple actions, low commitment (save $25, track expenses for 3 days)
-- medium: Moderate goals, some research needed (open investment account, improve credit score)
-- hard: Significant commitment or advanced concepts (pay off debt, create comprehensive budget)
+- easy: Short-term actions (3-7 days) - Simple daily habits like "don't eat out this week" or "track expenses for 5 days"
+- medium: Medium-term goals (14-30 days) - Moderate commitment like "save $500" or "research and open investment account"  
+- hard: Long-term challenges (30-90+ days) - Major financial changes like "pay off $2000 debt" or "build 3-month emergency fund"
 
 You must respond with ONLY a valid JSON object, no additional text.`;
   }
@@ -462,7 +473,7 @@ Generate a quest that matches their profile and is appropriate for their level. 
   "category": "main_story|important|side_jobs",
   "difficulty": "easy|medium|hard",
   "tags": ["tag1", "tag2", "tag3"],
-  "estimatedDays": number_between_1_and_30,
+  "estimatedDays": realistic_timeframe_based_on_difficulty_easy_3_7_medium_14_30_hard_30_90,
   "goal": number_representing_target_amount_or_count,
   "expReward": number_between_50_and_500,
   "coinReward": number_between_25_and_250
@@ -512,7 +523,9 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
   // Generate multiple quests for variety
   async generateQuestBatch(
     userContext: UserContext,
-    count: number = 3
+    count: number = 3,
+    preferredCategory?: QuestCategory,
+    preferredDifficulty?: QuestDifficulty
   ): Promise<Quest[]> {
     const quests: Quest[] = [];
     const categories = [QuestCategory.MAIN_QUESTS, QuestCategory.IMPORTANT, QuestCategory.SIDE_JOBS];
@@ -521,10 +534,11 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
     
     for (let i = 0; i < count; i++) {
       try {
-        const category = categories[i % categories.length];
+        // Use preferred category if specified, otherwise rotate through categories
+        const category = preferredCategory || categories[i % categories.length];
         console.log(`Generating quest ${i + 1}/${count} (${category})`);
         
-        const quest = await this.generatePersonalizedQuest(userContext, category);
+        const quest = await this.generatePersonalizedQuest(userContext, category, preferredDifficulty);
         quests.push(quest);
         
         // Small delay between requests to avoid rate limiting
@@ -552,46 +566,55 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
 
     const templates = [
       {
-        title: "Savings Sprint Challenge",
-        description: "Save $${amount} this week by cutting one daily expense you don't really need.",
+        title: "Daily Savings Challenge",
+        description: "Skip one daily expense (coffee, snacks) for ${days} days and save the money.",
         category: QuestCategory.SIDE_JOBS,
         difficulty: QuestDifficulty.EASY,
         tags: ["savings", "challenge", "daily_habits"],
-        estimatedDays: 7,
+        estimatedDays: 5,
         goalBase: 25,
         expBase: 75,
         coinBase: 35
       },
       {
-        title: "Budget Mastery Mission",
-        description: "Create and stick to a weekly budget, tracking every expense for ${days} days.",
+        title: "Budget Mastery Mission", 
+        description: "Create and stick to a budget, tracking every expense for ${days} days.",
         category: QuestCategory.IMPORTANT,
         difficulty: QuestDifficulty.MEDIUM,
         tags: ["budgeting", "tracking", "discipline"],
-        estimatedDays: 7,
-        goalBase: 7,
+        estimatedDays: 21,
+        goalBase: 21,
         expBase: 150,
         coinBase: 75
       },
       {
-        title: "Investment Explorer Quest",
-        description: "Research ${count} different investment options and write a brief summary of each.",
+        title: "Long-Term Investment Journey",
+        description: "Build a ${amount} investment portfolio over ${days} days with regular contributions.",
         category: QuestCategory.MAIN_QUESTS,
-        difficulty: QuestDifficulty.MEDIUM,
-        tags: ["investing", "research", "education"],
-        estimatedDays: 10,
-        goalBase: 3,
-        expBase: 200,
-        coinBase: 100
+        difficulty: QuestDifficulty.HARD,
+        tags: ["investing", "long_term", "wealth_building"],
+        estimatedDays: 60,
+        goalBase: 500,
+        expBase: 300,
+        coinBase: 150
       }
     ];
 
     // Select template based on preferences or randomly
     let template;
-    if (preferredCategory) {
+    if (preferredDifficulty) {
+      const difficultyTemplates = templates.filter(t => t.difficulty === preferredDifficulty);
+      if (difficultyTemplates.length > 0) {
+        template = difficultyTemplates[Math.floor(Math.random() * difficultyTemplates.length)];
+      }
+    }
+    
+    if (!template && preferredCategory) {
       const categoryTemplates = templates.filter(t => t.category === preferredCategory);
       template = categoryTemplates[Math.floor(Math.random() * categoryTemplates.length)] || templates[0];
-    } else {
+    }
+    
+    if (!template) {
       template = templates[Math.floor(Math.random() * templates.length)];
     }
 
@@ -628,7 +651,7 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
   private generateFallbackQuest(
     userContext: UserContext,
     preferredCategory?: QuestCategory,
-    preferredDifficulty?: QuestDifficulty
+    _preferredDifficulty?: QuestDifficulty
   ): Quest {
     let fallback = this.fallbackQuests[Math.floor(Math.random() * this.fallbackQuests.length)];
     
@@ -645,7 +668,7 @@ Ensure the quest is specific, achievable, and engaging for a Gen Z user!`;
 
   private createQuestFromAIData(aiData: AIGeneratedQuestData, userContext: UserContext): Quest {
     return {
-      id: `ai_quest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `ai_quest_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       title: aiData.title,
       description: aiData.description,
       category: aiData.category,

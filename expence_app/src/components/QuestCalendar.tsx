@@ -425,10 +425,10 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
     }
 
     return (
-      <div className="bg-gray-800 rounded-lg border border-gray-700">
+      <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
         {/* Month Header */}
-        <div className="p-4 border-b border-gray-600">
-          <div className="grid grid-cols-7 gap-1">
+        <div className="p-4 border-b border-gray-600 overflow-x-auto">
+          <div className="grid min-w-[560px] grid-cols-7 gap-1 text-xs sm:text-sm">
             {daysOfWeek.map((day) => (
               <div key={day} className="text-center font-semibold text-gray-300 p-2">
                 {day}
@@ -438,8 +438,8 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
         </div>
 
         {/* Calendar Grid */}
-        <div className="p-2">
-          <div className="grid grid-cols-7 gap-1">
+        <div className="p-2 overflow-x-auto">
+          <div className="grid min-w-[560px] grid-cols-7 gap-1">
             {calendarDays.map((date, index) => {
               const dateKey = date.toISOString().split('T')[0];
               const dayQuests = questsByDay.get(dateKey) || [];
@@ -525,7 +525,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
     }
 
     return (
-      <div className="grid grid-cols-7 gap-4 h-full">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full">
         {weekDays.map((date, index) => {
           const dateKey = date.toISOString().split('T')[0];
           const dayQuests = questsByDay.get(dateKey) || [];
@@ -600,9 +600,9 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:justify-end">
           {/* Navigation */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 justify-between sm:justify-start">
             <button
               onClick={() => {
                 if (viewMode === 'month') navigateMonth('prev');
@@ -616,6 +616,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
               onClick={() => setCurrentDate(new Date())}
               className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded transition-colors"
             >
+              Today
             </button>
             <button
               onClick={() => {
@@ -629,7 +630,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex bg-gray-800 rounded-lg p-1">
+          <div className="flex bg-gray-800 rounded-lg p-1 w-full sm:w-auto">
             <button
               onClick={() => setViewMode('month')}
               className={`px-3 py-1 text-sm rounded transition-all ${

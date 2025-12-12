@@ -72,13 +72,18 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
         const customQuest = await aiQuestGenerator.generateCustomQuest(
           userContext,
           customPrompt,
-          selectedCategory as QuestCategory || undefined,
-          selectedDifficulty as QuestDifficulty || undefined
+          selectedCategory ? selectedCategory as QuestCategory : undefined,
+          selectedDifficulty ? selectedDifficulty as QuestDifficulty : undefined
         );
         quests = [customQuest];
       } else {
-        // Generate batch of AI quests
-        quests = await aiQuestGenerator.generateQuestBatch(userContext, 3);
+        // Generate batch of AI quests with user preferences
+        quests = await aiQuestGenerator.generateQuestBatch(
+          userContext, 
+          3,
+          selectedCategory ? selectedCategory as QuestCategory : undefined,
+          selectedDifficulty ? selectedDifficulty as QuestDifficulty : undefined
+        );
       }
       
       // Validate each quest
@@ -112,15 +117,15 @@ const QuestGenerationModal: React.FC<QuestGenerationModalProps> = ({
         newQuest = await aiQuestGenerator.generateCustomQuest(
           userContext,
           customPrompt,
-          selectedCategory as QuestCategory || undefined,
-          selectedDifficulty as QuestDifficulty || undefined
+          selectedCategory ? selectedCategory as QuestCategory : undefined,
+          selectedDifficulty ? selectedDifficulty as QuestDifficulty : undefined
         );
       } else {
         // Regenerate regular quest
         newQuest = await aiQuestGenerator.generatePersonalizedQuest(
           userContext,
-          selectedCategory as QuestCategory || undefined,
-          selectedDifficulty as QuestDifficulty || undefined
+          selectedCategory ? selectedCategory as QuestCategory : undefined,
+          selectedDifficulty ? selectedDifficulty as QuestDifficulty : undefined
         );
       }
 
