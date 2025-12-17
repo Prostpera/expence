@@ -78,6 +78,7 @@ export default function Header({ onSignOut }: HeaderProps) {
   const [username, setUsername] = useState('USER_42X');
   const [expToNextLevel, setExpToNextLevel] = useState(0);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [csufProfile, setCsufProfile] = useState<{ name?: string; email?: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -88,6 +89,24 @@ export default function Header({ onSignOut }: HeaderProps) {
       fetchUserStats();
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const rawProfile = sessionStorage.getItem('csufProfile');
+    if (!rawProfile) return;
+    try {
+      setCsufProfile(JSON.parse(rawProfile));
+    } catch {
+      setCsufProfile(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.id || !csufProfile) return;
+    setUsername(csufProfile.name || csufProfile.email || 'CSUF_USER');
+    setUserLevel(1);
+    setExpToNextLevel(0);
+  }, [user?.id, csufProfile]);
 
   // Listen for stats updates (e.g., when a quest is completed)
   useEffect(() => {
@@ -170,9 +189,9 @@ export default function Header({ onSignOut }: HeaderProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-start lg:gap-6 w-full">
           {/* User Info */}
           <div className="flex flex-col">
-          <div className="text-white font-medium text-sm">{username}</div>
-          <div className="text-xs text-cyan-400">LEVEL {userLevel}</div>
-        </div>
+            <div className="text-white font-medium text-sm">{username}</div>
+            <div className="text-xs text-cyan-400">LEVEL {userLevel}</div>
+          </div>
 
           {/* EXP to Next Level */}
           <div className="cyber-border cyber-border-blue flex items-center bg-gray-800 bg-opacity-80 px-3 py-2 border border-blue-700 relative rounded w-full sm:w-auto sm:justify-center gap-2">
@@ -181,6 +200,12 @@ export default function Header({ onSignOut }: HeaderProps) {
             <span className="text-blue-300 font-light text-xs">EXP TO NEXT LVL</span>
           </div>
         </div>
+
+        {csufProfile && (
+          <div className="text-xs uppercase tracking-widest text-amber-300 border border-amber-400/60 px-3 py-2 text-center">
+            CSUF ACCOUNT
+          </div>
+        )}
 
         {/* Mobile Nav Toggle */}
         <button
