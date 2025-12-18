@@ -38,14 +38,6 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
   const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const timeSlots = ['08:00', '09:00', '10:00', '13:00', '14:00', '15:00', '18:00', '19:00', '20:00'];
 
-  useEffect(() => {
-    // Break down large quests into daily/weekly tasks and organize by actual calendar dates
-    const newExpandedQuests = expandQuestsToCalendar(quests, currentDate);
-    setExpandedQuests(newExpandedQuests);
-    const organizedQuests = organizeQuestsByDate(newExpandedQuests, currentDate, viewMode);
-    setQuestsByDay(organizedQuests);
-  }, [quests, currentDate, viewMode]);
-
   // Break down large quests into smaller daily/weekly tasks with better distribution
   const expandQuestsToCalendar = (quests: Quest[], baseDate: Date): Quest[] => {
     const expandedQuests: Quest[] = [];
@@ -169,6 +161,14 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
     
     return questsByDate;
   };
+
+  useEffect(() => {
+    // Break down large quests into daily/weekly tasks and organize by actual calendar dates
+    const newExpandedQuests = expandQuestsToCalendar(quests, currentDate);
+    setExpandedQuests(newExpandedQuests);
+    const organizedQuests = organizeQuestsByDate(newExpandedQuests, currentDate, viewMode);
+    setQuestsByDay(organizedQuests);
+  }, [quests, currentDate, viewMode]);
 
   // nav functions
   const navigateMonth = (direction: 'prev' | 'next') => {

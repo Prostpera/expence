@@ -83,6 +83,31 @@ export default function Header({ onSignOut }: HeaderProps) {
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
+  const fetchUserStats = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('level, username, exp_to_next_level')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user stats:', error);
+        return;
+      }
+
+      if (data) {
+        setUserLevel(data.level || 1);
+        setUsername(data.username || 'USER_42X');
+        setExpToNextLevel(data.exp_to_next_level || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+    }
+  };
+
   // Fetch user stats on mount
   useEffect(() => {
     if (user?.id) {
@@ -121,31 +146,6 @@ export default function Header({ onSignOut }: HeaderProps) {
     window.addEventListener('statsUpdated', handleStatsUpdate);
     return () => window.removeEventListener('statsUpdated', handleStatsUpdate);
   }, [user?.id]);
-
-  const fetchUserStats = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('level, username, exp_to_next_level')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user stats:', error);
-        return;
-      }
-
-      if (data) {
-        setUserLevel(data.level || 1);
-        setUsername(data.username || 'USER_42X');
-        setExpToNextLevel(data.exp_to_next_level || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching user stats:', error);
-    }
-  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
