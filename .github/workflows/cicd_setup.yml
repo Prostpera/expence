@@ -85,7 +85,8 @@ jobs:
         working-directory: ./expence_app
         run: npx tsc --noEmit
       
-      - name: Run all unit and integration tests
+      - name: Run all unit and integration tests (push only)
+        if: github.event_name == 'push'
         working-directory: ./expence_app
         run: npm run test
         continue-on-error: true
@@ -93,56 +94,9 @@ jobs:
           NODE_ENV: test
           CI: true
       
-      - name: Run AI quest generation tests
-        working-directory: ./expence_app
-        run: npm run test:ai-quest
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
       
-      - name: Run integration tests
-        working-directory: ./expence_app
-        run: npm run test:integration
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
-      
-      - name: Run API tests
-        working-directory: ./expence_app
-        run: npm run test:api
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
-      
-      - name: Run chatbot tests
-        working-directory: ./expence_app
-        run: npm run test:chatbot
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
-      
-      - name: Run Reccent Quest Activity tests
-        working-directory: ./expence_app
-        run: npm test __tests__/reccent_activity/recentQuestActivity.test.ts
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
-
-          
-      - name: Run auth tests
-        working-directory: ./expence_app
-        run: npm run test:auth
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          CI: true
-      
-      - name: Generate test coverage report
+      - name: Generate test coverage report (PR only)
+        if: github.event_name == 'pull_request'
         working-directory: ./expence_app
         run: npm run test:coverage
         continue-on-error: true
@@ -150,23 +104,14 @@ jobs:
           NODE_ENV: test
           CI: true
       
-      - name: Upload test results
+      - name: Upload test results (PR only)
         uses: actions/upload-artifact@v4
-        if: always()
+        if: github.event_name == 'pull_request' && always()
         with:
           name: test-results
           path: expence_app/coverage/
           retention-days: 7
-      
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: |
-            expence_app/coverage/lcov.info
-            expence_app/coverage/clover.xml
-          retention-days: 7
+          if-no-files-found: warn
       
       - name: Test summary
         if: always()
