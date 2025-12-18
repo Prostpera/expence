@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.62.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.954.0",
     "@hookform/resolvers": "^5.2.2",
     "@langchain/anthropic": "^0.3.27",
     "@langchain/community": "^0.3.55",

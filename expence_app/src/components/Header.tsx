@@ -78,28 +78,10 @@ export default function Header({ onSignOut }: HeaderProps) {
   const [username, setUsername] = useState('USER_42X');
   const [expToNextLevel, setExpToNextLevel] = useState(0);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [csufProfile, setCsufProfile] = useState<{ name?: string; email?: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => n.unread).length;
-
-  // Fetch user stats on mount
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserStats();
-    }
-  }, [user?.id]);
-
-  // Listen for stats updates (e.g., when a quest is completed)
-  useEffect(() => {
-    const handleStatsUpdate = () => {
-      if (user?.id) {
-        fetchUserStats();
-      }
-    };
-
-    window.addEventListener('statsUpdated', handleStatsUpdate);
-    return () => window.removeEventListener('statsUpdated', handleStatsUpdate);
-  }, [user?.id]);
 
   const fetchUserStats = async () => {
     if (!user?.id) return;
@@ -125,6 +107,45 @@ export default function Header({ onSignOut }: HeaderProps) {
       console.error('Error fetching user stats:', error);
     }
   };
+
+  // Fetch user stats on mount
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserStats();
+    }
+  }, [user?.id]);
+
+  // Load CSUF profile (stored in sessionStorage by csuf-auth flow)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const rawProfile = sessionStorage.getItem('csufProfile');
+    if (!rawProfile) return;
+    try {
+      setCsufProfile(JSON.parse(rawProfile));
+    } catch {
+      setCsufProfile(null);
+    }
+  }, []);
+
+  // If no Supabase user (CSUF login only), show CSUF profile info
+  useEffect(() => {
+    if (user?.id || !csufProfile) return;
+    setUsername(csufProfile.name || csufProfile.email || 'CSUF_USER');
+    setUserLevel(1);
+    setExpToNextLevel(0);
+  }, [user?.id, csufProfile]);
+
+  // Listen for stats updates (e.g., when a quest is completed)
+  useEffect(() => {
+    const handleStatsUpdate = () => {
+      if (user?.id) {
+        fetchUserStats();
+      }
+    };
+
+    window.addEventListener('statsUpdated', handleStatsUpdate);
+    return () => window.removeEventListener('statsUpdated', handleStatsUpdate);
+  }, [user?.id]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -181,6 +202,12 @@ export default function Header({ onSignOut }: HeaderProps) {
             <span className="text-blue-300 font-light text-xs">EXP TO NEXT LVL</span>
           </div>
         </div>
+
+        {csufProfile && (
+          <div className="text-xs uppercase tracking-widest text-amber-300 border border-amber-400/60 px-3 py-2 text-center">
+            CSUF ACCOUNT
+          </div>
+        )}
 
         {/* Mobile Nav Toggle */}
         <button

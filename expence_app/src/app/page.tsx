@@ -176,6 +176,10 @@ export default function Home() {
     }
   };
 
+  const handleCsufLogin = () => {
+    router.push('/csuf-auth');
+  };
+
   const MessageDisplay = () => {
     if (!message) return null;
 
@@ -278,6 +282,16 @@ export default function Home() {
                             )}
                           </span>
                         </button>
+
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            onClick={handleCsufLogin}
+                            className="w-full bg-gray-900 p-3 font-inter text-purple-100 shadow hover:bg-gray-800 transition border border-purple-600"
+                          >
+                            <span className="font-bold uppercase">[ CSUF Student Login ]</span>
+                          </button>
+                        </div>
                       </div>
 
                       {/* Divider */}
