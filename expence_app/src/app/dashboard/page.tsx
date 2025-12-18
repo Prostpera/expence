@@ -7,12 +7,9 @@ import Header from '@/components/Header';
 import ChatbotModal from '@/components/ChatbotModal';
 import { 
   Compass, 
-  Users, 
-  Trophy,
   BarChart3,
   Briefcase,
   AlertTriangle,
-  PiggyBank,
   CheckCircle2,
   PlusCircle
 } from 'lucide-react';
@@ -30,7 +27,6 @@ export default function DashboardContent() {
   
   // Calculate quest counts dynamically
   const activeQuests = quests.filter(q => q.status === 'new' || q.status === 'in_progress');
-  const sideQuests = quests.filter(q => q.category === 'side_jobs');
   
   // Calculate unlocked story chapters
   const userLevel = userContext?.currentLevel ?? 1;
@@ -85,7 +81,7 @@ export default function DashboardContent() {
         </div>
 
         {/* Navigation Buttons Grid */}
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Link href="/dashboard" className="group col-span-1 md:col-span-2">
             <div className="relative bg-purple-900 bg-opacity-50 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-purple-500 hover:bg-opacity-75">
               <div className="text-purple-400 mb-1">
@@ -106,26 +102,10 @@ export default function DashboardContent() {
               <div className="text-white font-medium text-sm mt-1">QUESTS</div>
             </div>
           </Link>
-          
-          <Link href="/dashboard/social" className="group col-span-1 md:col-span-2">
-            <div className="relative bg-indigo-900 bg-opacity-30 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-indigo-500 hover:bg-opacity-75">
-              <div className="text-indigo-400 mb-1">
-                <Users size={20} className="mx-auto" />
-              </div>
-              <div className="text-white font-medium text-sm">SOCIAL</div>
-            </div>
-          </Link>
-          
-          <Link href="/dashboard/leaderboard" className="group col-span-1 md:col-span-2">
-            <div className="relative bg-amber-900 bg-opacity-30 h-16 flex flex-col items-center justify-center clip-pentagon-button text-center p-2 border border-amber-500 hover:bg-opacity-75">
-              <div className="text-amber-400 mb-1">
-                <Trophy size={20} className="mx-auto" />
-              </div>
-              <div className="text-white font-medium text-sm">RANKS</div>
-            </div>
-          </Link>
         </div>
-        
+
+        <div className="mb-10"></div>
+
         <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* MAIN_STORY card */}
           <Link href="/dashboard/story-quest" className="block">
