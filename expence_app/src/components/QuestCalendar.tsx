@@ -27,6 +27,9 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
   const [expandedQuests, setExpandedQuests] = useState<Quest[]>([]);
   const [editingProgress, setEditingProgress] = useState(false);
   const [tempProgress, setTempProgress] = useState<number>(0);
+  const [showAll, setShowAll] = useState(false);
+  const [selectedDateKey, setDateKey] = useState<string | null>(null);
+
 
   // Reset editing state when quest changes
   useEffect(() => {
@@ -341,7 +344,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
     return (
       <div
         className={`${compact ? 'p-1' : 'p-2'} rounded border-l-2 cursor-grab transition-all duration-200 hover:scale-105 hover:shadow-lg ${getCategoryColor(quest.category)} mb-1 text-xs ${isCompleted ? 'opacity-60' : ''}`}
-        draggable={!isCompleted}
+        draggable={!isCompleted && !showAll}
         onDragStart={(e) => {
           if (!isCompleted) {
             e.dataTransfer.setData('questId', quest.id);
@@ -350,6 +353,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
         }}
         onClick={(e) => {
           e.stopPropagation();
+          setShowAll(false)
           setSelectedQuest(quest);
         }}
         title={`${quest.title} - Click for details, drag to reschedule`}
@@ -445,7 +449,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
               return (
                 <div
                   key={index}
-                  className={`min-h-20 p-1 border border-gray-600 rounded transition-all hover:bg-gray-700 ${
+                  className={`min-h-20 p-1 border border-gray-600 rounded overflow-visible transition-colors hover:bg-gray-700 ${
                     isCurrentDay 
                       ? 'bg-cyan-900 border-cyan-500' 
                       : isInCurrentMonth 
@@ -470,7 +474,7 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                     e.currentTarget.classList.remove('ring-2', 'ring-cyan-400');
                   }}
                 >
-                  <div className={`text-xs font-semibold mb-1 flex justify-between items-center ${
+                  <div className={`text-xs font-semibold mb-2 flex justify-between items-center ${
                     isCurrentDay 
                       ? 'text-cyan-300' 
                       : isInCurrentMonth 
@@ -484,14 +488,20 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                       </span>
                     )}
                   </div>
-                  <div className="space-y-1 max-h-16 overflow-y-auto">
-                    {dayQuests.slice(0, 2).map((quest) => (
+                  <div className="p-1 max-h-16 flex flex-col overflow-visible">
+                    {dayQuests.slice(0, 1).map((quest) => (
                       <QuestCard key={quest.id} quest={quest} compact={true} />
                     ))}
-                    {dayQuests.length > 2 && (
-                      <div className="text-xs text-gray-400 text-center bg-gray-700 rounded px-1">
-                        +{dayQuests.length - 2} more
-                      </div>
+                    {dayQuests.length > 1 && (
+                      <button 
+                        onClick={() => {
+                          setShowAll(true)
+                          setDateKey(dateKey)
+                        }}
+                        
+                        className="text-xs text-gray-400 text-center overflow-visible hover:scale-110 hover:underline rounded px-1 transition transform">
+                        +{dayQuests.length - 1} more
+                      </button> 
                     )}
                   </div>
                 </div>
@@ -522,12 +532,32 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
           const isCurrentDay = isToday(date);
           
           return (
-            <div key={index} className={`bg-gray-800 rounded-lg p-3 border ${isCurrentDay ? 'border-cyan-500' : 'border-gray-700'}`}>
+            <div 
+              key={index} className={`bg-gray-800 rounded-lg p-3 border ${
+              isCurrentDay ? 'border-cyan-500' : 'border-gray-700'}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const questId = e.dataTransfer.getData('questId');
+                if (questId) {
+                  moveQuestToDate(questId, date);
+                }
+              }}
+              onDragEnter={(e) => {
+                e.currentTarget.classList.add('ring-2', 'ring-cyan-400');
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove('ring-2', 'ring-cyan-400');
+              }}
+            >  
               <h3 className={`font-bold text-center mb-3 pb-2 border-b border-gray-600 ${isCurrentDay ? 'text-cyan-300' : 'text-white'}`}>
                 <div className="text-sm">{daysOfWeek[index]}</div>
                 <div className="text-lg">{date.getDate()}</div>
               </h3>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-96 overflow-visible">
                 {dayQuests.length > 0 ? (
                   dayQuests.map((quest) => (
                     <QuestCard key={quest.id} quest={quest} />
@@ -538,13 +568,13 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                   </div>
                 )}
               </div>
-              {dayQuests.length > 3 && (
+              {/* {dayQuests.length > 3 && (
                 <div className="text-center mt-2">
                   <span className="text-xs text-gray-400">
                     +{dayQuests.length - 3} more
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           );
         })}
@@ -900,6 +930,34 @@ const QuestCalendar: React.FC<QuestCalendarProps> = ({
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* All Quests Modal */}
+      {showAll && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-gray-900 border flex flex-col gap-1 border-purple-500 p-6 rounded-lg w-[90%] max-w-lg text-white h-auto max-h-[80vh]">
+            <h2 className="text-xl font-bold">All Quests</h2>
+
+            <div className="space-1 p-3 h-auto flex flex-col overflow-y-auto overflow-x-visible">
+              {
+                (questsByDay.get(selectedDateKey ?? '') || []).map((quest) => (
+                <QuestCard key={quest.id} quest={quest} compact={true} />
+              ))}
+            </div>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => (questsByDay.get(selectedDateKey ?? '') || []).forEach(q =>handleQuestComplete(q.id))}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 hover:scale-105 disabled:opacity-50 text-white py-2 px-4 rounded transition-colors">
+                Complete All
+              </button>
+
+              <button
+                onClick={() => setShowAll(false)}
+                className="bg-gray-700 hover:bg-gray-600 hover:scale-105 text-white py-2 px-4 rounded transition-colors">
+                Close
+              </button>
             </div>
           </div>
         </div>
