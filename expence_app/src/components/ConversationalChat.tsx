@@ -42,28 +42,7 @@ export default function ConversationalChat({
     scrollToBottom();
   }, [messages, displayedText, typingText]);
 
-  // Initialize chat with first node
-  useEffect(() => {
-    if (!isInitialized) {
-      const startNode = scenario.nodes.find(node => node.id === scenario.startNodeId);
-      if (startNode) {
-        setCurrentNode(startNode);
-        setIsInitialized(true);
-        
-        // Add initial Case message directly to avoid typing animation issues
-        const initialMessage: ConversationMessage = {
-          id: `init-${Date.now()}-case-${Math.random().toString(36).substr(2, 9)}`,
-          speaker: 'case',
-          text: startNode.caseMessage,
-          timestamp: new Date()
-        };
-        
-        setMessages([initialMessage]);
-      }
-    }
-  }, [scenario, isInitialized]);
-
-  // Refs for typewriter cancellation
+  // Refs for typewriter cancellation (must be before typeMessage)
   const typingCancelRef = useRef(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -131,6 +110,18 @@ export default function ConversationalChat({
       typeNextChar();
     }
   };
+
+  // Initialize chat with first node - uses typewriter effect
+  useEffect(() => {
+    if (!isInitialized) {
+      const startNode = scenario.nodes.find(node => node.id === scenario.startNodeId);
+      if (startNode) {
+        setCurrentNode(startNode);
+        setIsInitialized(true);
+        typeMessage(startNode.caseMessage, 'case');
+      }
+    }
+  }, [scenario, isInitialized]);
 
   const handleSuggestionClick = (choiceText: string) => {
     setUserInput(choiceText);
