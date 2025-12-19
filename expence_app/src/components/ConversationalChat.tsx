@@ -24,6 +24,7 @@ export default function ConversationalChat({
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [currentNode, setCurrentNode] = useState<ConversationNode | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [typingText, setTypingText] = useState('');
   const [displayedText, setDisplayedText] = useState('');
   const [learningMilestones, setLearningMilestones] = useState<string[]>([]);
   const [conversationQuality, setConversationQuality] = useState(0);
@@ -39,7 +40,7 @@ export default function ConversationalChat({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, displayedText]);
+  }, [messages, displayedText, typingText]);
 
   // Initialize chat with first node
   useEffect(() => {
@@ -62,25 +63,73 @@ export default function ConversationalChat({
     }
   }, [scenario, isInitialized]);
 
-  const typeMessage = (text: string, speaker: 'case' | 'user') => {
-    setIsTyping(true);
-    setDisplayedText('');
+  // Refs for typewriter cancellation
+  const typingCancelRef = useRef(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Show typing indicator for a brief moment, then display full message
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      // Add complete message to chat history with unique ID
+  // Cleanup typing on unmount
+  useEffect(() => {
+    return () => {
+      typingCancelRef.current = true;
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const typeMessage = (text: string, speaker: 'case' | 'user') => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingCancelRef.current = false;
+
+    if (speaker === 'user') {
+      // User messages appear instantly
       const newMessage: ConversationMessage = {
         id: `${Date.now()}-${speaker}-${Math.random().toString(36).substr(2, 9)}`,
         speaker,
         text,
         timestamp: new Date()
       };
-      
       setMessages(prev => [...prev, newMessage]);
-      setDisplayedText('');
-    }, 800); // Brief typing animation like real messaging apps
+    } else {
+      // Case messages type out character by character
+      setIsTyping(true);
+      setTypingText('');
+
+      let index = 0;
+      const typingSpeed = 20;
+      const punctuationPause = 200;
+
+      const typeNextChar = () => {
+        if (typingCancelRef.current) return;
+
+        if (index < text.length) {
+          setTypingText(text.slice(0, index + 1));
+          const currentChar = text[index];
+          index++;
+
+          if (currentChar === '.' || currentChar === '!' || currentChar === '?') {
+            typingTimeoutRef.current = setTimeout(typeNextChar, punctuationPause);
+          } else {
+            typingTimeoutRef.current = setTimeout(typeNextChar, typingSpeed);
+          }
+        } else {
+          setIsTyping(false);
+          setTypingText('');
+
+          const newMessage: ConversationMessage = {
+            id: `${Date.now()}-${speaker}-${Math.random().toString(36).substr(2, 9)}`,
+            speaker,
+            text,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, newMessage]);
+        }
+      };
+
+      typeNextChar();
+    }
   };
 
   const handleSuggestionClick = (choiceText: string) => {
@@ -317,19 +366,16 @@ CRITICAL: Respond in EXACTLY 1-2 complete sentences. Be super concise but ensure
           </div>
         ))}
 
-        {/* Typing indicator */}
+        {/* Typing message with typewriter effect */}
         {isTyping && (
           <div className="flex justify-start">
             <div className="max-w-[80%] p-3 rounded-lg bg-gray-700 text-gray-100">
               <div className="flex items-start space-x-2">
                 <Bot size={16} className="text-cyan-400 flex-shrink-0 mt-0.5" />
-                <div className="flex items-center space-x-1">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  </div>
-                </div>
+                <p className="text-sm leading-relaxed">
+                  {typingText}
+                  <span className="animate-pulse text-cyan-400">▋</span>
+                </p>
               </div>
             </div>
           </div>
